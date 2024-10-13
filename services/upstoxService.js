@@ -123,4 +123,4 @@ const decodeProfobuf = (buffer) => {
 })();
 
 }
-module.exports = {   setAccessToken, getAccessToken, getLTPs };
+module.exports = { getLTPs };
