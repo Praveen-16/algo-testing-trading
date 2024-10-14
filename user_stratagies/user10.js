@@ -44,11 +44,20 @@ const fetchUser = async (userName) => {
   return cachedUser;
 };
 
+let isSaving = false;  // Flag to prevent parallel saves
 const updateUser = async () => {
-  if (cachedUser) {
-    await cachedUser.save();
+  if (cachedUser && !isSaving) {
+    isSaving = true;  // Set flag to true to prevent parallel saves
+    try {
+      await cachedUser.save();  // Save the document
+    } catch (error) {
+      console.error('Error during save:', error);
+    } finally {
+      isSaving = false;  // Reset flag after save completes
+    }
   }
 };
+
 
 const tradeHandler = async (ltp, userName, optionType) => {
 

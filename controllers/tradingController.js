@@ -10,8 +10,7 @@ let instrumentKeyPE = ''
 let instrumentKeyCE = ''
 let instrumentKeys = ['0','1']
 
-let accessToken = 'eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiJEVjU4NzYiLCJqdGkiOiI2NzBiNzQ5NGRlMmJmODMxYjlhZDUzOWIiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaWF0IjoxNzI4ODAzOTg4LCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3Mjg4NTY4MDB9.3YT2toN9J0hvIMhf5yFO3FatnrDlaD_YTLxrwRZqd2k';
-
+let accessToken = "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiJEVjU4NzYiLCJqdGkiOiI2NzBkNDRjZGRlMmJmODMxYjlhZDdhOGQiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaWF0IjoxNzI4OTIyODI5LCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3Mjg5NDMyMDB9.3bNzWSbM3Mf9N_6opYw1lRDLJ3e6Fq2k8yHDr6fQnlU";
 const generateToken = async (req, res) => {
   const { code } = req.body;
 

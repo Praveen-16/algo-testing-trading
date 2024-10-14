@@ -20,7 +20,8 @@ let peState = {
 
 let lotSize = 25;
 let cachedUser = null;
-let isSaving = false;  // Flag to prevent parallel saves
+let isSaving = false;  
+let isTradHandler = false;
 
 // Function to create a sample user
 const createSampleUser = async () => {
@@ -79,8 +80,14 @@ const updateUser = async () => {
   }
 };
 
-// Common trade handler function for both CE and PE
+
+
 const tradeHandler = async (ltp, userName, optionType) => {
+  if(!isTradHandler){
+    console.log("Tradhandler started, LTP: ", ltp);
+    isTradHandler = true
+  }
+  console.log(ltp, "tradhandle")
   let user = await fetchUser(userName);
   if (!user) return;
 

@@ -14,6 +14,8 @@ dotenv.config();
 // simulateLTPUpdates("user5")
 // simulateLTPUpdates("user10")
 
+let isLTP = false;
+
 
 const getLTPs = (instrumentKeys, accessToken)=>{
   let apiVersion = "2.0";
@@ -77,7 +79,10 @@ const connectWebSocket = async (wsUrl) => {
       var ff2Object = jsObject.feeds[instrumentKeys[1]].ff;
       let ltpCE = ff2Object.marketFF.ltpc.ltp
       let ltpPE = ffObject.marketFF.ltpc.ltp
-      // console.log("LTP PE: ", ltpPE,"LTP CE: ", ltpCE)
+      if(!isLTP) {
+        console.log("LTP PE: ", ltpPE,"LTP CE: ", ltpCE)
+        isLTP = true;
+      }
       user5PE(ltpPE, 'user5')
       user5CE(ltpCE, "user5")
       user10CE(ltpCE, "user10")
