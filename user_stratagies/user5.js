@@ -84,10 +84,9 @@ const updateUser = async () => {
 
 const tradeHandler = async (ltp, userName, optionType) => {
   if(!isTradHandler){
-    console.log("Tradhandler started, LTP: ", ltp);
+    console.log("Tradhandler started for user ",userName,", LTP: ", ltp);
     isTradHandler = true
   }
-  console.log(ltp, "tradhandle")
   let user = await fetchUser(userName);
   if (!user) return;
 

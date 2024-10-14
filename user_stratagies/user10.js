@@ -19,7 +19,7 @@ let peState = {
 
 let lotSize = 25;
 let cachedUser = null;
-
+let isTradHandler = false;
 
 
 const formatDateTime = (date) => {
@@ -60,7 +60,10 @@ const updateUser = async () => {
 
 
 const tradeHandler = async (ltp, userName, optionType) => {
-
+  if(!isTradHandler){
+    console.log("Tradhandler started for user ",userName,", LTP: ", ltp);
+    isTradHandler = true
+  }
   let user = await fetchUser(userName);
   if (!user) return;
 
