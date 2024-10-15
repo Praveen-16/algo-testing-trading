@@ -114,11 +114,25 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
 
 const user10CE = async (ltp, userName) => {
+  ceState = {
+    previousPrices: [],
+    position: 0,
+    buyPrice: 0,
+    stopLoss: 0,
+    profitTarget: 0
+  };
   await tradeHandler(ltp, userName, 'CE');
 };
 
 
 const user10PE = async (ltp, userName) => {
+  peState = {
+    previousPrices: [],
+    position: 0,
+    buyPrice: 0,
+    stopLoss: 0,
+    profitTarget: 0
+  };
   await tradeHandler(ltp, userName, 'PE');
 };
 

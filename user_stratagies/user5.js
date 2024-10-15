@@ -111,10 +111,10 @@ const tradeHandler = async (ltp, userName, optionType) => {
     state.profitTarget = state.buyPrice * 1.1;
     user.totalTrades++;
 
-    const tradeStatement = `Bought ${optionType} at ${state.buyPrice.toFixed(2)}, Units: ${state.position.toFixed(2)}, Amount spent: ${buyAmount.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)} (Time: ${formatDateTime(new Date())})`;
+    const tradeStatement = `Bought ${optionType} at ${state.buyPrice.toFixed(2)}, Units: ${state.position.toFixed(2)}, Amount spent: ${buyAmount.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, Time: ${formatDateTime(new Date())})`;
     user.trades.push(tradeStatement);
 
-    // console.log(tradeStatement);
+    console.log(tradeStatement);
   }
 
   // ** Sell Logic **
@@ -129,7 +129,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, Time: ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement);
 
-    // console.log(tradeStatement);
+    console.log(tradeStatement);
     state.position = 0;
   }
 
@@ -139,11 +139,25 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
 // Wrapper function for CE trading
 const user5CE = async (ltp, userName) => {
+  ceState = {
+    previousPrices: [],
+    position: 0,
+    buyPrice: 0,
+    stopLoss: 0,
+    profitTarget: 0
+  };
   await tradeHandler(ltp, userName, 'CE');
 };
 
 // Wrapper function for PE trading
 const user5PE = async (ltp, userName) => {
+  peState = {
+    previousPrices: [],
+    position: 0,
+    buyPrice: 0,
+    stopLoss: 0,
+    profitTarget: 0
+  };
   await tradeHandler(ltp, userName, 'PE');
 };
 
