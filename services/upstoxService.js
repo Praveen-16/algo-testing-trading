@@ -68,27 +68,35 @@ const connectWebSocket = async (wsUrl) => {
     ws.on("close", () => {
       console.log("disconnected");
     });
-
+    
     ws.on("message", (data) => {
-      var decodedObject = decodeProfobuf(data); 
-      var jsonString = JSON.stringify(decodedObject);
-      var jsObject = JSON.parse(jsonString);
-     
-
-      var ffObject = jsObject.feeds[instrumentKeys[0]].ff;
-      var ff2Object = jsObject.feeds[instrumentKeys[1]].ff;
-      let ltpCE = ff2Object.marketFF.ltpc.ltp
-      let ltpPE = ffObject.marketFF.ltpc.ltp
-      if(!isLTP) {
-        console.log("LTP PE: ", ltpPE,"LTP CE: ", ltpCE)
-        isLTP = true;
+      try {
+        var decodedObject = decodeProfobuf(data); 
+        var jsonString = JSON.stringify(decodedObject);
+        var jsObject = JSON.parse(jsonString);
+    
+        var ffObject = jsObject?.feeds?.[instrumentKeys[0]]?.ff; 
+        var ff2Object = jsObject?.feeds?.[instrumentKeys[1]]?.ff; 
+    
+        if (ffObject?.marketFF?.ltpc?.ltp != null) {
+          let ltpPE = ffObject.marketFF.ltpc.ltp;
+          user5PE?.(ltpPE, 'user5');
+          user10PE?.(ltpPE, 'user10');
+        }
+    
+        if (ff2Object?.marketFF?.ltpc?.ltp != null) {
+          let ltpCE = ff2Object.marketFF.ltpc.ltp;    
+          user5CE?.(ltpCE, 'user5');
+          user10CE?.(ltpCE, 'user10');
+        }
+    
+      } catch (error) {
+        console.error("Error processing message:", error);
       }
-      user5PE(ltpPE, 'user5')
-      user5CE(ltpCE, "user5")
-      user10CE(ltpCE, "user10")
-      user10PE(ltpPE, "user10")
- 
     });
+    
+    
+
 
     ws.on("error", (error) => {
       console.log("error:", error);

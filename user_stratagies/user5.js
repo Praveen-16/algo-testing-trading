@@ -27,7 +27,7 @@ let isTradHandler = false;
 const createSampleUser = async () => {
   try {
     const sampleUser = new User({
-      name: 'user5',
+      name: 'user1',
       capital: 20000,
       availableBalance: 20000,
       netProfitOrLoss: 0,
