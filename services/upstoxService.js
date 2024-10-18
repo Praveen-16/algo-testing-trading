@@ -77,8 +77,8 @@ const connectWebSocket = async (wsUrl) => {
         var ffObject = jsObject?.feeds?.[instrumentKeys[0]]?.ff; 
         var ff2Object = jsObject?.feeds?.[instrumentKeys[1]]?.ff;
         
-        simulateLTPUpdates("user5");
-        simulateLTPUpdates10("user10")
+        // simulateLTPUpdates("user5");
+        // simulateLTPUpdates10("user10")
     
         if (ffObject?.marketFF?.ltpc?.ltp != null) {
           let ltpPE = ffObject.marketFF.ltpc.ltp;
