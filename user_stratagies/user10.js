@@ -1,6 +1,5 @@
 const User = require('../models/User');
 
-// Separate objects to track state for CE and PE
 let ceState = {
   previousPrices: [],
   position: 0,
@@ -18,6 +17,7 @@ let peState = {
 };
 
 let lotSize = 25;
+let buyAmount = 0;
 let cachedUser = null;
 let isTradHandler = false;
 
@@ -44,16 +44,16 @@ const fetchUser = async (userName) => {
   return cachedUser;
 };
 
-let isSaving = false;  // Flag to prevent parallel saves
+let isSaving = false;  
 const updateUser = async () => {
   if (cachedUser && !isSaving) {
-    isSaving = true;  // Set flag to true to prevent parallel saves
+    isSaving = true;  
     try {
-      await cachedUser.save();  // Save the document
+      await cachedUser.save();  
     } catch (error) {
       console.error('Error during save:', error);
     } finally {
-      isSaving = false;  // Reset flag after save completes
+      isSaving = false;  
     }
   }
 };
@@ -69,25 +69,36 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
 
   let state = optionType === 'CE' ? ceState : peState;
+  let valueArray = optionType === 'CE' ? user.ceValues : user.peValues;
 
   state.previousPrices.push(ltp);
+  valueArray.push({
+    value: ltp,
+    time: new Date()  
+  });  
   if (state.previousPrices.length === 900) state.previousPrices.shift();
+
+  if (valueArray.length > 6) {
+    valueArray.shift();  
+  }
+
 
   const currentPrice = ltp;
   const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * 1.4);
 
 
-  if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize) {
+  if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && state.position == 0) {
 
     const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
     state.position += maxLots;
+    buyAmount = (maxLots * currentPrice * lotSize);
     user.availableBalance -= (maxLots * currentPrice * lotSize) - 50;
     state.buyPrice = currentPrice;
     state.stopLoss = state.buyPrice * 0.9;
     state.profitTarget = state.buyPrice * 1.06;
     user.totalTrades++;
 
-    const tradeStatement = `Bought ${optionType} at ${state.buyPrice}, SL: ${state.stopLoss}, Target: ${state.profitTarget} (Date: ${formatDateTime(new Date())})`;
+    const tradeStatement = `Bought ${optionType} at ${state.buyPrice.toFixed(2)}, Units: ${state.position.toFixed(2)}, Amount: ${buyAmount.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, Time: ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement );
 
     console.log(tradeStatement);
@@ -99,10 +110,9 @@ const tradeHandler = async (ltp, userName, optionType) => {
     const exitPrice = currentPrice;
     const profit = (exitPrice - state.buyPrice) * state.position * lotSize;
     state.previousPrices.length = 0;  
-    user.availableBalance += (profit - 50);
-    user.netProfitOrLoss = user.availableBalance - user.capital;
-
-    const tradeStatement = `Sold ${optionType} at ${exitPrice}, Profit/Loss: ${profit} (Date: ${formatDateTime(new Date())})`;
+    user.availableBalance +=  (exitPrice * state.position * lotSize ) - 50;
+    user.netProfitOrLoss +=(profit);
+    const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, Time: ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement );
 
     console.log(tradeStatement);
@@ -114,25 +124,13 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
 
 const user10CE = async (ltp, userName) => {
-  ceState = {
-    previousPrices: [],
-    position: 0,
-    buyPrice: 0,
-    stopLoss: 0,
-    profitTarget: 0
-  };
+
   await tradeHandler(ltp, userName, 'CE');
 };
 
 
 const user10PE = async (ltp, userName) => {
-  peState = {
-    previousPrices: [],
-    position: 0,
-    buyPrice: 0,
-    stopLoss: 0,
-    profitTarget: 0
-  };
+
   await tradeHandler(ltp, userName, 'PE');
 };
 

@@ -1,23 +1,22 @@
 const {user5CE, user5PE} = require("../user_stratagies/user5")
 const {user10CE, user10PE} = require("../user_stratagies/user10");
-const {simulateLTPUpdates} = require("../services/simulateLTPUpdates")
+const {simulateLTPUpdates, simulateLTPUpdates10} = require("../services/simulateLTPUpdates")
 
 const dotenv = require('dotenv');
-const axios = require('axios');
-const fs = require('fs');
 const UpstoxClient = require('upstox-js-sdk');
 const WebSocket = require('ws').WebSocket;
 const protobuf = require('protobufjs');
 
 dotenv.config();
 
-// simulateLTPUpdates("user5")
+
 // simulateLTPUpdates("user10")
 
 let isLTP = false;
 
 
 const getLTPs = (instrumentKeys, accessToken)=>{
+  console.log("getLTPs function called..")
   let apiVersion = "2.0";
   let defaultClient = UpstoxClient.ApiClient.instance;
   let OAUTH2 = defaultClient.authentications["OAUTH2"];
@@ -76,7 +75,10 @@ const connectWebSocket = async (wsUrl) => {
         var jsObject = JSON.parse(jsonString);
     
         var ffObject = jsObject?.feeds?.[instrumentKeys[0]]?.ff; 
-        var ff2Object = jsObject?.feeds?.[instrumentKeys[1]]?.ff; 
+        var ff2Object = jsObject?.feeds?.[instrumentKeys[1]]?.ff;
+        
+        simulateLTPUpdates("user5");
+        simulateLTPUpdates10("user10")
     
         if (ffObject?.marketFF?.ltpc?.ltp != null) {
           let ltpPE = ffObject.marketFF.ltpc.ltp;

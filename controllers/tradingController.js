@@ -4,51 +4,9 @@ const AccessToken = require('../models/AccessToken');
 const { tradeStrategy } = require("../services/marketDataService");
 const axios = require("axios");
 
-let instrumentKey = "";
-
 let instrumentKeyPE = ''
 let instrumentKeyCE = ''
 let instrumentKeys = ['0','1']
-
-let accessToken = "";
-// const generateToken = async (req, res) => {
-//   const { code } = req.body;
-
-//   console.log(code, "code");
-
-//   const url = "https://api.upstox.com/v2/login/authorization/token";
-//   const headers = {
-//     accept: "application/json",
-//     "Content-Type": "application/x-www-form-urlencoded",
-//   };
-
-//   const data = {
-//     code: code,
-//     client_id: "9a1c6050-d377-4659-bce7-66f4aec2b0a8",
-//     client_secret: "6cps1pzbpo",
-//     redirect_uri: "https://192.168.0.166:432/",
-//     grant_type: "authorization_code",
-//   };
-
-//   try {
-//     const response = await axios.post(url, new URLSearchParams(data), { headers });
-    
-//     if (response.status === 200) {
-//       const { access_token } = response.data;
-//       console.log("Token Generated: ", access_token);
-//       accessToken = access_token;
-//       return res.status(200).json({ accessToken: access_token });
-//     } else {
-//       console.error("Unexpected response status:", response.status);
-//       return res.status(response.status).json({ error: "Failed to generate access token" });
-//     }
-//   } catch (error) {
-//     console.error("Error generating access token:", error.response?.status || error.message);
-//     return res.status(error.response?.status || 500).json({ error: error.response?.data || "Failed to generate access token" });
-//   }
-// };
-
-
 
 const generateToken = async (req, res) => {
   const { code } = req.body;
@@ -127,7 +85,6 @@ const fetchInstrumentpe = async (req, res) => {
 
 const startTrading = async (req, res) => {
   try {
-    // Fetch the access token from the database
     const tokenDoc = await AccessToken.findOne({});
     const accessToken = tokenDoc ? tokenDoc.token : null;
 
