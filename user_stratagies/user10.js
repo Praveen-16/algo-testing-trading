@@ -98,7 +98,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
     state.profitTarget = state.buyPrice * 1.06;
     user.totalTrades++;
 
-    const tradeStatement = `Bought ${optionType} at ${state.buyPrice.toFixed(2)}, Units: ${state.position.toFixed(2)}, Amount: ${buyAmount.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, Time: ${formatDateTime(new Date())}`;
+    const tradeStatement = `Bought ${optionType} at ${state.buyPrice.toFixed(2)}, Units: ${state.position.toFixed(2)}, Amount: ${buyAmount.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement );
 
     console.log(tradeStatement);
@@ -112,7 +112,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
     state.previousPrices.length = 0;  
     user.availableBalance +=  (exitPrice * state.position * lotSize ) - 50;
     user.netProfitOrLoss +=(profit);
-    const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, Time: ${formatDateTime(new Date())}`;
+    const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement );
 
     console.log(tradeStatement);
@@ -134,4 +134,10 @@ const user10PE = async (ltp, userName) => {
   await tradeHandler(ltp, userName, 'PE');
 };
 
-module.exports = { user10CE, user10PE };
+const clearValues10 = ()=>{
+  ceState.previousPrices =[];
+  peState.previousPrices = [];
+  isTradHandler = false;
+}
+
+module.exports = { user10CE, user10PE, clearValues10 };

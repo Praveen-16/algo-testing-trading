@@ -2,6 +2,7 @@ const User = require('../models/User');
 const {  getLTPs } = require("../services/upstoxService");
 const AccessToken = require('../models/AccessToken'); 
 const { tradeStrategy } = require("../services/marketDataService");
+const {closeWebSocket} = require("../services/upstoxService")
 const axios = require("axios");
 
 let instrumentKeyPE = ''
@@ -107,6 +108,16 @@ const startTrading = async (req, res) => {
   }
 };
 
+const stopTrading = async (req, res) => {
+  try {
+    closeWebSocket(); 
+    res.status(200).json({ message: 'WebSocket connection closed.' });
+  } catch (error) {
+    console.error('Error stopping WebSocket:', error);
+    res.status(500).json({ message: 'Failed to stop WebSocket connection', error });
+  }
+}
+
 
 const getUserData = async (req, res) => {
   try {
@@ -131,4 +142,4 @@ const getUserData = async (req, res) => {
 
 
 
-module.exports = { generateToken, fetchInstrumentce,fetchInstrumentpe, startTrading, getUserData };
+module.exports = { generateToken, fetchInstrumentce,fetchInstrumentpe, startTrading,stopTrading, getUserData };
