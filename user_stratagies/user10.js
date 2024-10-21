@@ -47,13 +47,17 @@ const fetchUser = async (userName) => {
 let isSaving = false;  
 const updateUser = async () => {
   if (cachedUser && !isSaving) {
-    isSaving = true;  
+    isSaving = true;
     try {
-      await cachedUser.save();  
+      await User.findOneAndUpdate(
+        { _id: cachedUser._id },
+        cachedUser.toObject(),
+        { new: true }
+      );
     } catch (error) {
-      console.error('Error during save:', error);
+      console.error("Error during save:", error);
     } finally {
-      isSaving = false;  
+      isSaving = false;
     }
   }
 };
