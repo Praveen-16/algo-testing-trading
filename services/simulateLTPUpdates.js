@@ -4,6 +4,7 @@ const User = require('../models/User');
 
 // Simulate LTP updates every second
 const simulateLTPUpdates = async (userName) => {
+  updateUserDetails('test1')
   const minLTP = 100;
   const maxLTP = 300;
   const generateRandomLTP = () => {
@@ -22,6 +23,7 @@ const simulateLTPUpdates = async (userName) => {
 };
 
 const simulateLTPUpdates10 = async (userName) => {
+  updateUserDetails('test2')
   const minLTP = 100;
   const maxLTP = 300;
   const generateRandomLTP = () => {
@@ -71,7 +73,5 @@ const updateUserDetails = async (name) => {
   }
 };
 
-updateUserDetails('user5')
-updateUserDetails('user10')
 
 module.exports = { simulateLTPUpdates, simulateLTPUpdates10 };

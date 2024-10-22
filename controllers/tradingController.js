@@ -1,9 +1,12 @@
 const User = require('../models/User');
+const InstrumentKey = require('../models/instrumentSchema')
 const {  getLTPs } = require("../services/upstoxService");
 const AccessToken = require('../models/AccessToken'); 
 const { tradeStrategy } = require("../services/marketDataService");
 const {closeWebSocket} = require("../services/upstoxService")
 const axios = require("axios");
+const { clearValues10 } = require('../user_stratagies/user10');
+const { clearValues5 } = require('../user_stratagies/user5');
 
 let instrumentKeyPE = ''
 let instrumentKeyCE = ''
@@ -58,8 +61,13 @@ const fetchInstrumentce = async (req, res) => {
   )?.instrument_key;
 
   if (instrumentKeyCE) {
-   
-    instrumentKeys[1]=instrumentKeyCE
+    const newInstrumentKey = new InstrumentKey({
+      instrumentKey: tradingSymbol,
+    });
+
+    await newInstrumentKey.save();
+
+    instrumentKeys[1] = instrumentKeyCE;
     res.status(200).json({ instrumentKeyCE });
   } else {
     res.status(404).json({ error: "Instrument key not found CE" });
@@ -75,10 +83,13 @@ const fetchInstrumentpe = async (req, res) => {
   )?.instrument_key;
 
   if (instrumentKeyPE) {
-  
-    instrumentKeys[0]=instrumentKeyPE;
+    if (instrumentKeyPE) {
+      const newInstrumentKey = new InstrumentKey({
+        instrumentKey: tradingSymbol,
+      });
+    }
+    instrumentKeys[0] = instrumentKeyPE;
     res.status(200).json({ instrumentKeyPE });
-
   } else {
     res.status(404).json({ error: "Instrument key not found PE" });
   }
@@ -101,6 +112,9 @@ const startTrading = async (req, res) => {
 
     const ltpResponse = await getLTPs(instrumentKeys, accessToken);
 
+    clearValues10()
+    clearValues5()
+
     res.status(200).json({ message: "Trading started successfully" });
   } catch (error) {
     console.error("Error starting trading:", error);
@@ -117,7 +131,14 @@ const stopTrading = async (req, res) => {
     res.status(500).json({ message: 'Failed to stop WebSocket connection', error });
   }
 }
-
+const getInstruments = async (req, res) => {
+  try {
+    const instruments = await InstrumentKey.find(); // Fetch all saved instruments
+    res.status(200).json(instruments);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching instrument keys' });
+  }
+}
 
 const getUserData = async (req, res) => {
   try {
@@ -142,4 +163,4 @@ const getUserData = async (req, res) => {
 
 
 
-module.exports = { generateToken, fetchInstrumentce,fetchInstrumentpe, startTrading,stopTrading, getUserData };
+module.exports = { generateToken, fetchInstrumentce,fetchInstrumentpe, startTrading,stopTrading, getUserData, getInstruments };

@@ -49,7 +49,7 @@ const fetchUser = async (userName) => {
 const createSampleUser = async () => {
   try {
     const sampleUser = new User({
-      name: 'user10',
+      name: 'test2',
       capital: 20000,
       availableBalance: 20000,
       netProfitOrLoss: 0,

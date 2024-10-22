@@ -1,8 +1,7 @@
 const {user5CE, user5PE} = require("../user_stratagies/user5")
 const {user10CE, user10PE} = require("../user_stratagies/user10");
 const {simulateLTPUpdates, simulateLTPUpdates10} = require("../services/simulateLTPUpdates")
-const { clearValues5 } = require('../user_stratagies/user5');
-const { clearValues10 } = require("../user_stratagies/user10")
+
 
 const dotenv = require('dotenv');
 const UpstoxClient = require('upstox-js-sdk');
@@ -77,6 +76,7 @@ const getLTPs = (instrumentKeys, accessToken) => {
           var decodedObject = decodeProfobuf(data);
           var jsonString = JSON.stringify(decodedObject);
           var jsObject = JSON.parse(jsonString);
+          
 
           var ffObject = jsObject?.feeds?.[instrumentKeys[0]]?.ff;
           var ff2Object = jsObject?.feeds?.[instrumentKeys[1]]?.ff;
@@ -140,9 +140,7 @@ const getLTPs = (instrumentKeys, accessToken) => {
 
 const closeWebSocket = () => {
   if (activeWebSocket) {
-    activeWebSocket.close();  // Close the WebSocket connection
-    clearValues5();
-    clearValues10();
+    activeWebSocket.close();  
     console.log("WebSocket connection closed.");
   } else {
     console.log("No active WebSocket connection to close.");

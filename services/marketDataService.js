@@ -25,8 +25,6 @@ const createSampleUser = async () => {
     console.error('Error adding sample user:', error);
   }
 };
-
-console.log("maket")
 // createSampleUser();
 
 const formatDateTime = (date) => {
