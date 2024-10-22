@@ -23,14 +23,16 @@ let isTradHandler = false;
 
 
 const formatDateTime = (date) => {
-  return date.toLocaleString('en-GB', {
+  const options = {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false
-  });
+    hour12: false,
+    timeZone: 'Asia/Kolkata'
+  };
+  return date.toLocaleString('en-GB', options);
 };
 
 const fetchUser = async (userName) => {

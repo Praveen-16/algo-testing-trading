@@ -17,7 +17,6 @@ dotenv.config();
 let activeWebSocket = null;  // Store the WebSocket instance globally
 
 const getLTPs = (instrumentKeys, accessToken) => {
-  console.log("getLTPs function called..");
   let apiVersion = "2.0";
   let defaultClient = UpstoxClient.ApiClient.instance;
   let OAUTH2 = defaultClient.authentications["OAUTH2"];

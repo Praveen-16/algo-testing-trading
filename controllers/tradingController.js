@@ -87,6 +87,7 @@ const fetchInstrumentpe = async (req, res) => {
       const newInstrumentKey = new InstrumentKey({
         instrumentKey: tradingSymbol,
       });
+      await newInstrumentKey.save();
     }
     instrumentKeys[0] = instrumentKeyPE;
     res.status(200).json({ instrumentKeyPE });

@@ -26,15 +26,18 @@ const MAX_VALUES_LENGTH = 300;
 
 
 const formatDateTime = (date) => {
-  return date.toLocaleString('en-GB', {
+  const options = {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false
-  });
+    hour12: false,
+    timeZone: 'Asia/Kolkata'
+  };
+  return date.toLocaleString('en-GB', options);
 };
+
 
 const fetchUser = async (userName) => {
   if (!cachedUser) {
@@ -108,7 +111,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if (state.previousPrices.length === MAX_VALUES_LENGTH) state.previousPrices.shift();
 
   const currentPrice = ltp;
-  const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * 1.1);
+  const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * 1.15);
 
   // ** Buy Logic **
   if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && state.position == 0) {
