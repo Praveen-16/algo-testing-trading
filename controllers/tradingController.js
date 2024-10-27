@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Uptime = require('../models/UpTimeSchema')
 const InstrumentKey = require('../models/instrumentSchema')
 const {  getLTPs } = require("../services/upstoxService");
 const AccessToken = require('../models/AccessToken'); 
@@ -10,7 +11,7 @@ const { clearValues5 } = require('../user_stratagies/user5');
 
 let instrumentKeyPE = ''
 let instrumentKeyCE = ''
-let instrumentKeys = ['0','1']
+let instrumentKeys = ['NSE_FO|35346']
 
 const generateToken = async (req, res) => {
   const { code } = req.body;
@@ -162,6 +163,34 @@ const getUserData = async (req, res) => {
   }
 };
 
+const upTimeServer =  async (req, res) => {
+  try {
+    const uptimeRecord = new Uptime({ status: 'UP' });
+    await uptimeRecord.save();
+    res.status(200).json({ message: 'Server is up!' });
+  } catch (error) {
+    console.error('Error logging uptime:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+const getNifty50Value = async (req, res) => {
+  try {
+    const tokenDoc = await AccessToken.findOne({});
+    const accessToken = tokenDoc ? tokenDoc.token : null;
+    const response = await axios.get('https://api.upstox.com/v2/market-quote/ltp?instrument_key=NSE_INDEX%7CNifty%2050', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    const nifty50Data = response;
+    console.log('Nifty 50 Value:', nifty50Data);
+  } catch (error) {
+    console.error('Error fetching Nifty 50 value:', error.response ? error.response.data : error.message);
+  }
+}
 
 
-module.exports = { generateToken, fetchInstrumentce,fetchInstrumentpe, startTrading,stopTrading, getUserData, getInstruments };
+module.exports = { generateToken, fetchInstrumentce,fetchInstrumentpe, startTrading,stopTrading, getUserData, getInstruments,getNifty50Value, upTimeServer };
