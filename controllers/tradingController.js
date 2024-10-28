@@ -1,17 +1,19 @@
-const User = require('../models/User');
-const Uptime = require('../models/UpTimeSchema')
-const InstrumentKey = require('../models/instrumentSchema')
-const {  getLTPs } = require("../services/upstoxService");
-const AccessToken = require('../models/AccessToken'); 
+const User = require("../models/User");
+const Uptime = require("../models/UpTimeSchema");
+const InstrumentKey = require("../models/instrumentSchema");
+const { getLTPs } = require("../services/upstoxService");
+const AccessToken = require("../models/AccessToken");
+const TradingSymbols = require("../models/tradingSymbolsSchema ");
 const { tradeStrategy } = require("../services/marketDataService");
-const {closeWebSocket} = require("../services/upstoxService")
+const { closeWebSocket } = require("../services/upstoxService");
 const axios = require("axios");
-const { clearValues10 } = require('../user_stratagies/user10');
-const { clearValues5 } = require('../user_stratagies/user5');
+const { clearValues10 } = require("../user_stratagies/user10");
+const { clearValues5 } = require("../user_stratagies/user5");
+const { fetchNiftyTradingSymbols } = require("../services/nifty50Data");
 
-let instrumentKeyPE = ''
-let instrumentKeyCE = ''
-let instrumentKeys = ['NSE_FO|35346']
+let instrumentKeyPE = "";
+let instrumentKeyCE = "";
+let instrumentKeys = ["0", "1"];
 
 const generateToken = async (req, res) => {
   const { code } = req.body;
@@ -33,78 +35,108 @@ const generateToken = async (req, res) => {
   };
 
   try {
-    const response = await axios.post(url, new URLSearchParams(data), { headers });
+    const response = await axios.post(url, new URLSearchParams(data), {
+      headers,
+    });
 
     if (response.status === 200) {
       const { access_token } = response.data;
       console.log("Token Generated: ", access_token);
-    
-      await AccessToken.findOneAndUpdate({}, { token: access_token }, { upsert: true });
+
+      await AccessToken.findOneAndUpdate(
+        {},
+        { token: access_token },
+        { upsert: true }
+      );
 
       return res.status(200).json({ accessToken: access_token });
     } else {
       console.error("Unexpected response status:", response.status);
-      return res.status(response.status).json({ error: "Failed to generate access token" });
+      return res
+        .status(response.status)
+        .json({ error: "Failed to generate access token" });
     }
   } catch (error) {
-    console.error("Error generating access token:", error.response?.status || error.message);
-    return res.status(error.response?.status || 500).json({ error: error.response?.data || "Failed to generate access token" });
+    console.error(
+      "Error generating access token:",
+      error.response?.status || error.message
+    );
+    return res
+      .status(error.response?.status || 500)
+      .json({
+        error: error.response?.data || "Failed to generate access token",
+      });
   }
 };
-
 
 const fetchInstrumentce = async (req, res) => {
   const { tradingSymbol } = req.body;
   const data = require("../config/NSE.json");
 
-  instrumentKeyCE = data.find(
+  const instrumentKeyCE = data.find(
     (item) => item.trading_symbol === tradingSymbol
   )?.instrument_key;
 
   if (instrumentKeyCE) {
-    const newInstrumentKey = new InstrumentKey({
-      instrumentKey: tradingSymbol,
-    });
+    let tradingSymbolDoc = await TradingSymbols.findOne({ tradingSymbol });
 
-    await newInstrumentKey.save();
+    if (!tradingSymbolDoc) {
+      tradingSymbolDoc = new TradingSymbols({
+        tradingSymbol,
+        instrumentKey: instrumentKeyCE,
+      });
+    } else {
+      tradingSymbolDoc.instrumentKey = instrumentKeyCE;
+    }
 
-    instrumentKeys[1] = instrumentKeyCE;
+    await tradingSymbolDoc.save();
+
     res.status(200).json({ instrumentKeyCE });
   } else {
     res.status(404).json({ error: "Instrument key not found CE" });
   }
 };
 
+
 const fetchInstrumentpe = async (req, res) => {
   const { tradingSymbol } = req.body;
   const data = require("../config/NSE.json");
-
-  instrumentKeyPE = data.find(
+  const instrumentKeyPE = data.find(
     (item) => item.trading_symbol === tradingSymbol
   )?.instrument_key;
-
   if (instrumentKeyPE) {
-    if (instrumentKeyPE) {
-      const newInstrumentKey = new InstrumentKey({
-        instrumentKey: tradingSymbol,
+    let tradingSymbolDoc = await TradingSymbols.findOne({ tradingSymbol });
+
+    if (!tradingSymbolDoc) {
+      tradingSymbolDoc = new TradingSymbols({
+        tradingSymbol,
+        instrumentKey: instrumentKeyPE,
       });
-      await newInstrumentKey.save();
+    } else {
+      tradingSymbolDoc.instrumentKey = instrumentKeyPE;
     }
-    instrumentKeys[0] = instrumentKeyPE;
+    await tradingSymbolDoc.save();
     res.status(200).json({ instrumentKeyPE });
   } else {
-    res.status(404).json({ error: "Instrument key not found PE" });
+    res.status(404).json({ error: "Instrument key not found for the provided trading symbol." });
   }
 };
+
 
 const startTrading = async (req, res) => {
   try {
     const tokenDoc = await AccessToken.findOne({});
     const accessToken = tokenDoc ? tokenDoc.token : null;
 
-    if (!instrumentKeys || !Array.isArray(instrumentKeys) || instrumentKeys.length === 0) {
+    if (
+      !instrumentKeys ||
+      !Array.isArray(instrumentKeys) ||
+      instrumentKeys.length === 0
+    ) {
       console.log("No instrument keys found", instrumentKeys);
-      return res.status(400).json({ error: "No valid instrument keys provided" });
+      return res
+        .status(400)
+        .json({ error: "No valid instrument keys provided" });
     }
 
     if (!accessToken) {
@@ -113,9 +145,8 @@ const startTrading = async (req, res) => {
     }
 
     const ltpResponse = await getLTPs(instrumentKeys, accessToken);
-
-    clearValues10()
-    clearValues5()
+    clearValues10();
+    clearValues5();
 
     res.status(200).json({ message: "Trading started successfully" });
   } catch (error) {
@@ -126,71 +157,99 @@ const startTrading = async (req, res) => {
 
 const stopTrading = async (req, res) => {
   try {
-    closeWebSocket(); 
-    res.status(200).json({ message: 'WebSocket connection closed.' });
+    closeWebSocket();
+    res.status(200).json({ message: "WebSocket connection closed." });
   } catch (error) {
-    console.error('Error stopping WebSocket:', error);
-    res.status(500).json({ message: 'Failed to stop WebSocket connection', error });
+    console.error("Error stopping WebSocket:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to stop WebSocket connection", error });
   }
-}
+};
 const getInstruments = async (req, res) => {
   try {
-    const instruments = await InstrumentKey.find(); // Fetch all saved instruments
-    res.status(200).json(instruments);
+    const tradingSymbols = await TradingSymbols.find({});
+    res.status(200).json(tradingSymbols);
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching instrument keys' });
+    res.status(500).json({ error: 'Error fetching trading symbols' });
   }
-}
+};
 
 const getUserData = async (req, res) => {
   try {
-    const { name } = req.body;  
-
+    const { name } = req.body;
     if (!name) {
-      return res.status(400).json({ error: 'Name is required' });
+      return res.status(400).json({ error: "Name is required" });
     }
-
     const user = await User.findOne({ name });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     res.status(200).json(user);
   } catch (error) {
-    console.error('Error fetching user data:', error);
-    res.status(500).json({ error: 'An error occurred while fetching user data' });
+    console.error("Error fetching user data:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching user data" });
   }
 };
 
-const upTimeServer =  async (req, res) => {
+const upTimeServer = async (req, res) => {
   try {
-    const uptimeRecord = new Uptime({ status: 'UP' });
+    const uptimeRecord = new Uptime({ status: "UP" });
     await uptimeRecord.save();
-    res.status(200).json({ message: 'Server is up!' });
+    res.status(200).json({ message: "Server is up!" });
   } catch (error) {
-    console.error('Error logging uptime:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error logging uptime:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-}
+};
 
 const getNifty50Value = async (req, res) => {
   try {
-    const tokenDoc = await AccessToken.findOne({});
-    const accessToken = tokenDoc ? tokenDoc.token : null;
-    const response = await axios.get('https://api.upstox.com/v2/market-quote/ltp?instrument_key=NSE_INDEX%7CNifty%2050', {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      }
-    });
+    const data = await fetchNiftyTradingSymbols();
+    if (data) {
+      const getInstrumentKeys = async () => {
+        try {
+          const symbols = await TradingSymbols.findOne({});
 
-    const nifty50Data = response;
-    console.log('Nifty 50 Value:', nifty50Data);
+          if (!symbols) {
+            return res.status(404).json({ error: "No trading symbols found." });
+          }
+
+          const { callInstrumentKey, putInstrumentKey } = symbols;
+          instrumentKeys[0] = putInstrumentKey;
+          instrumentKeys[1] = callInstrumentKey;
+        } catch (error) {
+          console.error("Error retrieving instrument keys:", error.message);
+        }
+      };
+      getInstrumentKeys();
+    }
+
+    res
+      .status(200)
+      .json({ message: "Trading symbols generated successfully", data });
   } catch (error) {
-    console.error('Error fetching Nifty 50 value:', error.response ? error.response.data : error.message);
+    res
+      .status(500)
+      .json({
+        message: "Failed to fetch trading symbols",
+        error: error.message,
+      });
   }
-}
+};
 
-
-module.exports = { generateToken, fetchInstrumentce,fetchInstrumentpe, startTrading,stopTrading, getUserData, getInstruments,getNifty50Value, upTimeServer };
+module.exports = {
+  generateToken,
+  fetchInstrumentce,
+  fetchInstrumentpe,
+  startTrading,
+  stopTrading,
+  getUserData,
+  getInstruments,
+  getNifty50Value,
+  upTimeServer,
+};

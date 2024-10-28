@@ -107,7 +107,6 @@ const tradeHandler = async (ltp, userName, optionType) => {
     const tradeStatement = `Bought ${optionType} at ${state.buyPrice.toFixed(2)}, Units: ${state.position.toFixed(2)}, Amount: ${buyAmount.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement );
 
-    console.log(tradeStatement);
   }
 
 
@@ -121,8 +120,9 @@ const tradeHandler = async (ltp, userName, optionType) => {
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement );
 
-    console.log(tradeStatement);
+  
     state.position = 0;
+    isTradHandler = false;
   }
 
   await updateUser();

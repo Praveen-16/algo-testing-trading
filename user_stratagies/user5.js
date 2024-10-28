@@ -144,6 +144,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
     // console.log(tradeStatement);
     state.position = 0;
+    isTradHandler = false;
   }
 
   await updateUser();
