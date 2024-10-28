@@ -12,7 +12,9 @@ app.use(cors());
 // MongoDB Connection
 const connectDB = require('./config/db');
 connectDB();
-
+app.get('/', (req, res) => {
+    res.send('<h1>server is up..</h1>');
+  });
 app.use('/api/trading', tradingRoutes);
 
 const PORT = process.env.PORT || 5000;
