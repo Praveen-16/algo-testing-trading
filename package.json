@@ -1,9 +1,9 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.js",  
   "scripts": {
-    "test": "echo \"No tests specified\" && exit 0"
+    "start": "node index.js"  
   },
   "keywords": [],
   "author": "",

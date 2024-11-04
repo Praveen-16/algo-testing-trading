@@ -46,23 +46,28 @@ const fetchUser = async (userName) => {
   return cachedUser;
 };
 
-let isSaving = false;  
-const updateUser = async () => {
+let isSaving = false;
+const updateUser = async (attempts = 3) => {
   if (cachedUser && !isSaving) {
     isSaving = true;
     try {
       await User.findOneAndUpdate(
         { _id: cachedUser._id },
         cachedUser.toObject(),
-        { new: true }
+        { new: true, maxTimeMS: 5000 }
       );
     } catch (error) {
-      console.error("Error during save:", error);
+      if (attempts > 1 && error.code === 'ECONNRESET') {
+        await updateUser(attempts - 1);
+      } else {
+        console.error("Error during save user10:", error);
+      }
     } finally {
       isSaving = false;
     }
   }
 };
+
 
 
 const tradeHandler = async (ltp, userName, optionType) => {
@@ -94,6 +99,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
 
   if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && state.position == 0) {
+    console.log( "check prices: ",state.previousPrices)
 
     const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
     state.position += maxLots;

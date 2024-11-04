@@ -1,20 +1,22 @@
-const {user5CE, user5PE} = require("../user_stratagies/user5")
-const {user10CE, user10PE} = require("../user_stratagies/user10");
-const {simulateLTPUpdates, simulateLTPUpdates10} = require("../services/simulateLTPUpdates")
+const { user5CE, user5PE } = require("../user_stratagies/user5");
+const { user10CE, user10PE } = require("../user_stratagies/user10");
+const {
+  banknifty1CE,
+  banknifty1PE,
+} = require("../user_stratagies/BankNifty/bankNifty1");
+const {
+  simulateLTPUpdates,
+  simulateLTPUpdates10,
+} = require("../services/simulateLTPUpdates");
 
-
-const dotenv = require('dotenv');
-const UpstoxClient = require('upstox-js-sdk');
-const WebSocket = require('ws').WebSocket;
-const protobuf = require('protobufjs');
+const dotenv = require("dotenv");
+const UpstoxClient = require("upstox-js-sdk");
+const WebSocket = require("ws").WebSocket;
+const protobuf = require("protobufjs");
 
 dotenv.config();
 
-
-
-
-
-let activeWebSocket = null;  // Store the WebSocket instance globally
+let activeWebSocket = null; // Store the WebSocket instance globally
 
 const getLTPs = (instrumentKeys, accessToken) => {
   let apiVersion = "2.0";
@@ -48,7 +50,7 @@ const getLTPs = (instrumentKeys, accessToken) => {
 
       ws.on("open", () => {
         console.log("web socket connected");
-        activeWebSocket = ws; 
+        activeWebSocket = ws;
         resolve(ws);
 
         console.log("checking for ", instrumentKeys);
@@ -58,7 +60,7 @@ const getLTPs = (instrumentKeys, accessToken) => {
             method: "sub",
             data: {
               mode: "full",
-              instrumentKeys: instrumentKeys
+              instrumentKeys: instrumentKeys,
             },
           };
           ws.send(Buffer.from(JSON.stringify(data)));
@@ -66,8 +68,8 @@ const getLTPs = (instrumentKeys, accessToken) => {
       });
 
       ws.on("close", () => {
-        console.log("disconnected");
-        activeWebSocket = null; 
+        console.log("disconnected: ", Date().toString());
+        activeWebSocket = null;
       });
 
       ws.on("message", (data) => {
@@ -75,26 +77,36 @@ const getLTPs = (instrumentKeys, accessToken) => {
           var decodedObject = decodeProfobuf(data);
           var jsonString = JSON.stringify(decodedObject);
           var jsObject = JSON.parse(jsonString);
-          
 
-          var ffObject = jsObject?.feeds?.[instrumentKeys[0]]?.ff;
-          var ff2Object = jsObject?.feeds?.[instrumentKeys[1]]?.ff;
+          var ffObject1 = jsObject?.feeds?.[instrumentKeys[0]]?.ff;
+          var ffObject2 = jsObject?.feeds?.[instrumentKeys[1]]?.ff;
+          var ffObject3 = jsObject?.feeds?.[instrumentKeys[2]]?.ff;
+          var ffObject4 = jsObject?.feeds?.[instrumentKeys[3]]?.ff;
+
+          if (ffObject1?.marketFF?.ltpc?.ltp != null) {
+            let ltpPE1 = ffObject1.marketFF.ltpc.ltp;
+            user5PE?.(ltpPE1, "user5");
+            user10PE?.(ltpPE1, "user10");
+          }
+
+          if (ffObject2?.marketFF?.ltpc?.ltp != null) {
+            let ltpCE1 = ffObject2.marketFF.ltpc.ltp;
+            user5CE?.(ltpCE1, "user5");
+            user10CE?.(ltpCE1, "user10");
+          }
+
+          if (ffObject3?.marketFF?.ltpc?.ltp != null) {
+            let ltpPE2 = ffObject3.marketFF.ltpc.ltp;
+            banknifty1PE?.(ltpPE2, "Bank Nifty 1");
+          }
+
+          if (ffObject4?.marketFF?.ltpc?.ltp != null) {
+            let ltpCE2 = ffObject4.marketFF.ltpc.ltp;
+            banknifty1CE?.(ltpCE2, "Bank Nifty 1");
+          }
 
           // simulateLTPUpdates("user5");
           // simulateLTPUpdates10("user10");
-
-          if (ffObject?.marketFF?.ltpc?.ltp != null) {
-            let ltpPE = ffObject.marketFF.ltpc.ltp;
-            user5PE?.(ltpPE, 'user5');
-            user10PE?.(ltpPE, 'user10');
-          }
-
-          if (ff2Object?.marketFF?.ltpc?.ltp != null) {
-            let ltpCE = ff2Object.marketFF.ltpc.ltp;
-            user5CE?.(ltpCE, 'user5');
-            user10CE?.(ltpCE, 'user10');
-          }
-
         } catch (error) {
           console.error("Error processing message:", error);
         }
@@ -110,7 +122,7 @@ const getLTPs = (instrumentKeys, accessToken) => {
   const initProtobuf = async () => {
     const protoFilePath = __dirname + "/MarketDataFeed.proto";
     protobufRoot = await protobuf.load(protoFilePath);
-    console.log("Protobuf part initialization complete");
+    // console.log("Protobuf part initialization complete");
   };
 
   const decodeProfobuf = (buffer) => {
@@ -136,10 +148,9 @@ const getLTPs = (instrumentKeys, accessToken) => {
   })();
 };
 
-
 const closeWebSocket = () => {
   if (activeWebSocket) {
-    activeWebSocket.close();  
+    activeWebSocket.close();
     console.log("WebSocket connection closed.");
   } else {
     console.log("No active WebSocket connection to close.");

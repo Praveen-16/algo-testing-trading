@@ -1,6 +1,5 @@
 const User = require("../models/User");
 const Uptime = require("../models/UpTimeSchema");
-const InstrumentKey = require("../models/instrumentSchema");
 const { getLTPs } = require("../services/upstoxService");
 const AccessToken = require("../models/AccessToken");
 const TradingSymbols = require("../models/tradingSymbolsSchema ");
@@ -9,11 +8,12 @@ const { closeWebSocket } = require("../services/upstoxService");
 const axios = require("axios");
 const { clearValues10 } = require("../user_stratagies/user10");
 const { clearValues5 } = require("../user_stratagies/user5");
-const { fetchNiftyTradingSymbols } = require("../services/nifty50Data");
+const { fetchNiftyTradingSymbols } = require("../services/indexes/nifty50Data");
+const { fetchBankNiftyTradingSymbols } = require("../services/indexes/bankNiftyData")
 
 let instrumentKeyPE = "";
 let instrumentKeyCE = "";
-let instrumentKeys = ["0", "1"];
+let instrumentKeys = ["0", "1", "BNPE", "BNCE"];
 
 const generateToken = async (req, res) => {
   const { code } = req.body;
@@ -41,8 +41,6 @@ const generateToken = async (req, res) => {
 
     if (response.status === 200) {
       const { access_token } = response.data;
-      console.log("Token Generated: ", access_token);
-
       await AccessToken.findOneAndUpdate(
         {},
         { token: access_token },
@@ -51,7 +49,7 @@ const generateToken = async (req, res) => {
 
       return res.status(200).json({ accessToken: access_token });
     } else {
-      console.error("Unexpected response status:", response.status);
+      console.error("access token gen failed, Unexpected response status:", response.status);
       return res
         .status(response.status)
         .json({ error: "Failed to generate access token" });
@@ -196,16 +194,25 @@ const getUserData = async (req, res) => {
   }
 };
 
-const upTimeServer = async (req, res) => {
-  try {
-    const uptimeRecord = new Uptime({ status: "UP" });
-    await uptimeRecord.save();
-    res.status(200).json({ message: "Server is up!" });
-  } catch (error) {
-    console.error("Error logging uptime:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
+// const upTimeServer = async (req, res) => {
+//   try {
+//     const uptimeRecord = new Uptime({ status: "UP" });
+//     await uptimeRecord.save();
+//     const count = await Uptime.countDocuments();
+//     if (count > 10) {
+//       await Uptime.find().sort({ _id: 1 }).limit(count - 10).deleteMany();
+//     }
+//     res.status(200).json({ message: "Server is up!" });
+//   } catch (error) {
+//     console.error("Error logging uptime:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
+// setInterval(() => {
+//   upTimeServer();
+// }, 5 * 60 * 1000);
+
 
 const getNifty50Value = async (req, res) => {
   try {
@@ -231,12 +238,43 @@ const getNifty50Value = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Trading symbols generated successfully", data });
+      .json({ message: "Trading symbols Nifty 50 generated successfully", data });
   } catch (error) {
     res
-      .status(500)
+      .status(200)
       .json({
-        message: "Failed to fetch trading symbols",
+        message: "Failed to fetch trading symbols Nifty 50",
+        error: error.message,
+      });
+  }
+};
+
+const getBankNiftyValue = async (req, res) => {
+  try {
+    const data = await fetchBankNiftyTradingSymbols();
+    if (data) {
+      const getInstrumentKeys = async () => {
+        try {
+        
+
+          const { callInstrumentKey, putInstrumentKey } = data;
+          instrumentKeys[2] = callInstrumentKey;
+          instrumentKeys[3] = putInstrumentKey;
+        } catch (error) {
+          console.error("Error retrieving instrument keys:", error.message);
+        }
+      };
+      getInstrumentKeys();
+    }
+
+    res
+      .status(200)
+      .json({ message: "Trading symbols BankNifty generated successfully", data });
+  } catch (error) {
+    res
+      .status(200)
+      .json({
+        message: "Failed to fetch trading symbols Bank Nifty",
         error: error.message,
       });
   }
@@ -251,5 +289,7 @@ module.exports = {
   getUserData,
   getInstruments,
   getNifty50Value,
-  upTimeServer,
+  getBankNiftyValue
+  // upTimeServer,
+
 };

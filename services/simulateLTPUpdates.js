@@ -2,7 +2,6 @@ const { user10PE, user10CE } = require("../user_stratagies/user10");
 const { user5CE, user5PE } = require("../user_stratagies/user5");
 const User = require('../models/User');
 
-// Simulate LTP updates every second
 const simulateLTPUpdates = async (userName) => {
   updateUserDetails('test1')
   const minLTP = 100;
@@ -73,5 +72,7 @@ const updateUserDetails = async (name) => {
   }
 };
 
+// updateUserDetails("user5");
+// updateUserDetails("user10");
 
-module.exports = { simulateLTPUpdates, simulateLTPUpdates10 };
+module.exports = { simulateLTPUpdates, simulateLTPUpdates10, updateUserDetails };
