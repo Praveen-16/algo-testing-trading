@@ -89,7 +89,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
   });  
   if (state.previousPrices.length === 900) state.previousPrices.shift();
 
-  if (valueArray.length > 6) {
+  if (valueArray.length > 5) {
     valueArray.shift();  
   }
 
