@@ -10,6 +10,7 @@ const { clearValues10 } = require("../user_stratagies/user10");
 const { clearValues5 } = require("../user_stratagies/user5");
 const { fetchNiftyTradingSymbols } = require("../services/indexes/nifty50Data");
 const { fetchBankNiftyTradingSymbols } = require("../services/indexes/bankNiftyData")
+const { updateUserDetails } = require("../services/simulateLTPUpdates")
 
 let instrumentKeyPE = "";
 let instrumentKeyCE = "";
@@ -280,6 +281,19 @@ const getBankNiftyValue = async (req, res) => {
   }
 };
 
+const resetUserDetails = async (req, res) => {
+  const { name } = req.body; 
+  try {
+      const updatedUser = await updateUserDetails(name);
+      if (!updatedUser) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      res.status(200).json({messaage:name+" values reset successfully"});
+  } catch (error) {
+      res.status(500).json({ message: 'Error resetting user details' });
+  }
+};
+
 module.exports = {
   generateToken,
   fetchInstrumentce,
@@ -289,7 +303,8 @@ module.exports = {
   getUserData,
   getInstruments,
   getNifty50Value,
-  getBankNiftyValue
+  getBankNiftyValue,
+  resetUserDetails
   // upTimeServer,
 
 };
