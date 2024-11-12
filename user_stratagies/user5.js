@@ -212,6 +212,7 @@ const formatDateTime = (date) => {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    second: '2-digit',
     hour12: false,
     timeZone: 'Asia/Kolkata'
   };
@@ -314,13 +315,19 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if (state.position > 0 && (currentPrice <= state.stopLoss || currentPrice >= state.profitTarget)) {
     const exitPrice = currentPrice;
     const profit = (exitPrice - state.buyPrice) * state.position * lotSize;
+    const principal = state.buyPrice * state.position * lotSize;
 
-    state.previousPrices.length = 0;
-    user.availableBalance += (exitPrice * state.position * lotSize) - 50;
-    user.netProfitOrLoss += profit;
+    if (profit > 0) {
+      user.availableBalance += principal - 50; 
+      user.unsettledFunds += profit;  
+    } else {
+      user.availableBalance += (exitPrice * state.position * lotSize) - 50;
+    }
+    user.netProfitOrLoss +=(profit);
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement);
-
+    
+    state.previousPrices.length = 0;
     state.position = 0;
     isTradeHandlerActive = false;
   }

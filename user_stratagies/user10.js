@@ -29,6 +29,7 @@ const formatDateTime = (date) => {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    second: '2-digit',
     hour12: false,
     timeZone: 'Asia/Kolkata'
   };
@@ -106,8 +107,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
     buyAmount = (maxLots * currentPrice * lotSize);
     user.availableBalance -= (maxLots * currentPrice * lotSize) - 50;
     state.buyPrice = currentPrice;
-    state.stopLoss = state.buyPrice * 0.9;
-    state.profitTarget = state.buyPrice * 1.06;
+    state.stopLoss = state.buyPrice * 0.7;
+    state.profitTarget = state.buyPrice * 1.07;
     user.totalTrades++;
 
     const tradeStatement = `Bought ${optionType} at ${state.buyPrice.toFixed(2)}, Units: ${state.position.toFixed(2)}, Amount: ${buyAmount.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
@@ -119,14 +120,19 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if (state.position > 0 && (currentPrice <= state.stopLoss || currentPrice >= state.profitTarget)) {
 
     const exitPrice = currentPrice;
+    const principal = state.buyPrice * state.position * lotSize;
     const profit = (exitPrice - state.buyPrice) * state.position * lotSize;
-    state.previousPrices.length = 0;  
-    user.availableBalance +=  (exitPrice * state.position * lotSize ) - 50;
+    if (profit > 0) {
+      user.availableBalance += principal - 50; 
+      user.unsettledFunds += profit;  
+    } else {
+      user.availableBalance += (exitPrice * state.position * lotSize) - 50;
+    }
     user.netProfitOrLoss +=(profit);
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement );
-
-  
+    
+    state.previousPrices.length = 0;  
     state.position = 0;
     isTradHandler = false;
   }

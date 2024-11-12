@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const tradingRoutes = require('./routes/tradingRoutes');
 const cors = require('cors');
+require('../server/controllers/trasferSetteledFunds');
+
 
 
 dotenv.config();
