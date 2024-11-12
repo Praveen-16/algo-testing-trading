@@ -294,6 +294,27 @@ const resetUserDetails = async (req, res) => {
   }
 };
 
+const addUnsetteldFunds = async (req, res) => {
+
+  try {
+    const users = await User.find();
+    for (const user of users) {
+      if (user.unsettledFunds > 0) {
+        user.availableBalance += user.unsettledFunds;
+        user.unsettledFunds = 0;
+        await user.save();
+        console.log(`Transferred unsettled funds for user ${user.name}`);
+      }
+    }
+    res.status(200).json({messaage:'Daily unsettled funds transfer completed.'});
+    console.log('Daily unsettled funds transfer completed.');
+  } catch (error) {
+    console.error('Error in daily unsettled funds transfer:', error);
+    res.status(500).json({ message: 'Error Updating Unsetteled Funds' });
+  }
+};
+
+
 module.exports = {
   generateToken,
   fetchInstrumentce,
@@ -304,7 +325,8 @@ module.exports = {
   getInstruments,
   getNifty50Value,
   getBankNiftyValue,
-  resetUserDetails
+  resetUserDetails,
+  addUnsetteldFunds
   // upTimeServer,
 
 };

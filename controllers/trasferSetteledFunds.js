@@ -1,10 +1,8 @@
 const cron = require('node-cron');
 const User = require('../models/User'); 
-
-cron.schedule('0 9 * * *', async () => {
+cron.schedule('10 9 * * *', async () => {
   try {
     const users = await User.find();
-
     for (const user of users) {
       if (user.unsettledFunds > 0) {
         user.availableBalance += user.unsettledFunds;
@@ -17,6 +15,6 @@ cron.schedule('0 9 * * *', async () => {
   } catch (error) {
     console.error('Error in daily unsettled funds transfer:', error);
   }
+}, {
+  timezone: "Asia/Kolkata" 
 });
-
-module.exports = cron;

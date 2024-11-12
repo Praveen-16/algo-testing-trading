@@ -1,5 +1,5 @@
 const express = require('express');
-const { generateToken, fetchInstrumentce, fetchInstrumentpe, startTrading, getUserData,stopTrading, getInstruments, getNifty50Value, getBankNiftyValue, resetUserDetails,upTimeServer } = require('../controllers/tradingController');
+const { generateToken, fetchInstrumentce, fetchInstrumentpe, startTrading, getUserData,stopTrading, getInstruments, getNifty50Value, getBankNiftyValue, resetUserDetails,addUnsetteldFunds, upTimeServer } = require('../controllers/tradingController');
 const router = express.Router();
 
 router.post('/token', generateToken);
@@ -12,6 +12,7 @@ router.get('/instruments', getInstruments)
 router.get('/nifty50data', getNifty50Value);
 router.get('/bankniftydata', getBankNiftyValue);
 router.post('/resetUserDetails', resetUserDetails);
+router.post('/addUnsetteldFunds', addUnsetteldFunds);
 // router.get('/uptime',upTimeServer);
   
 
