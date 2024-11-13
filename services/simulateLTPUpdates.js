@@ -44,20 +44,28 @@ const simulateLTPUpdates10 = async (userName) => {
 const updateUserDetails = async (name) => {
   try {
     const user = await User.findOneAndUpdate(
-      { name: name },                      // Find the user by name
-      { 
-        $set: { 
-          availableBalance: 20000,        // Hardcoded available balance
-          capital: 20000,  
-          netProfitOrLoss:0,
-          totalTrades:0,               // Hardcoded capital
-          peValues: [],                   // Set PE values array to empty
-          ceValues: [],                   // Set CE values array to empty
-          trades: []                      // Set trades array to empty
+      { name: name },
+      {
+        $set: {
+          capital: 20000,
+          availableBalance: 20000
+        },
+        $unset: {
+          netProfitOrLoss: "",
+          totalTrades: "",
+          unsettledFunds: "",
+          peValues: "",
+          ceValues: "",
+          trades: "",
+          todayTradesCount: "",
+          todayPositiveTrades: "",
+          todayNegativeTrades: "",
+          totalPositiveTrades: "",
+          totalNegativeTrades: ""
         }
       },
-      { new: true }                       // Return the updated document
-    );
+      { new: true }
+    );    
 
     if (!user) {
       console.log('User not found');

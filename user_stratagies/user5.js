@@ -233,7 +233,7 @@ const fetchUser = async (userName, refresh = false) => {
 const createSampleUser = async () => {
   try {
     const sampleUser = new User({
-      name: 'Bank Nifty 1',
+      name: 'user606',
       capital: 20000,
       availableBalance: 20000,
       netProfitOrLoss: 0,
@@ -307,6 +307,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
     state.stopLoss = state.buyPrice * 0.92;
     state.profitTarget = state.buyPrice * 1.07;
     user.totalTrades++;
+    user.todayTradesCount++;
 
     const tradeStatement = `Bought ${optionType} at ${state.buyPrice.toFixed(2)}, Units: ${state.position.toFixed(2)}, Amount: ${buyAmount.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement);
@@ -320,8 +321,12 @@ const tradeHandler = async (ltp, userName, optionType) => {
     if (profit > 0) {
       user.availableBalance += principal - 50; 
       user.unsettledFunds += profit;  
+      user.totalPositiveTrades += 1;
+      user.todayPositiveTrades +=1
     } else {
       user.availableBalance += (exitPrice * state.position * lotSize) - 50;
+      user.totalNegativeTrades += 1;
+      user.totalNegativeTrades +=1;
     }
     user.netProfitOrLoss +=(profit);
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;

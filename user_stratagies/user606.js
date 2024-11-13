@@ -1,4 +1,4 @@
-const User = require('../../models/User');
+const User = require('../models/User');
 
 let ceState = {
   previousPrices: [],
@@ -16,7 +16,7 @@ let peState = {
   profitTarget: 0
 };
 
-let lotSize = 15;
+let lotSize = 25;
 let buyAmount = 0;
 let cachedUser = null;
 let isTradHandler = false;
@@ -96,18 +96,19 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
 
   const currentPrice = ltp;
-  const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * 1.4);
+  const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * 1.6);
 
 
   if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && state.position == 0) {
+    // console.log( "check prices: ",state.previousPrices)
 
     const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
     state.position += maxLots;
     buyAmount = (maxLots * currentPrice * lotSize);
     user.availableBalance -= (maxLots * currentPrice * lotSize) - 50;
     state.buyPrice = currentPrice;
-    state.stopLoss = state.buyPrice * 0.9;
-    state.profitTarget = state.buyPrice * 1.06;
+    state.stopLoss = state.buyPrice * 0.85;
+    state.profitTarget = state.buyPrice * 1.07;
     user.totalTrades++;
     user.todayTradesCount++;
 
@@ -120,24 +121,23 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if (state.position > 0 && (currentPrice <= state.stopLoss || currentPrice >= state.profitTarget)) {
 
     const exitPrice = currentPrice;
-    const profit = (exitPrice - state.buyPrice) * state.position * lotSize;
     const principal = state.buyPrice * state.position * lotSize;
-    state.previousPrices.length = 0;  
+    const profit = (exitPrice - state.buyPrice) * state.position * lotSize;
     if (profit > 0) {
-      user.availableBalance += principal - 50; 
-      user.unsettledFunds += profit;  
-      user.totalPositiveTrades += 1;
-      user.todayPositiveTrades +=1
-    } else {
-      user.availableBalance += (exitPrice * state.position * lotSize) - 50;
-      user.totalNegativeTrades += 1;
-      user.totalNegativeTrades +=1;
-    }
+        user.availableBalance += principal - 50; 
+        user.unsettledFunds += profit;  
+        user.totalPositiveTrades += 1;
+        user.todayPositiveTrades +=1
+      } else {
+        user.availableBalance += (exitPrice * state.position * lotSize) - 50;
+        user.totalNegativeTrades += 1;
+        user.totalNegativeTrades +=1;
+      }
     user.netProfitOrLoss +=(profit);
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement );
-
-  
+    
+    state.previousPrices.length = 0;  
     state.position = 0;
     isTradHandler = false;
   }
@@ -146,21 +146,21 @@ const tradeHandler = async (ltp, userName, optionType) => {
 };
 
 
-const banknifty1CE = async (ltp, userName) => {
+const user606CE = async (ltp, userName) => {
 
   await tradeHandler(ltp, userName, 'CE');
 };
 
 
-const banknifty1PE = async (ltp, userName) => {
+const user606PE = async (ltp, userName) => {
 
   await tradeHandler(ltp, userName, 'PE');
 };
 
-const banknifty1Clear = ()=>{
+const clearValues606 = ()=>{
   ceState.previousPrices =[];
   peState.previousPrices = [];
   isTradHandler = false;
 }
 
-module.exports = { banknifty1CE, banknifty1PE, banknifty1Clear };
+module.exports = { user606PE, user606CE, clearValues606 };
