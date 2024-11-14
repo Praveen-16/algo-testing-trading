@@ -20,6 +20,7 @@ let lotSize = 15;
 let buyAmount = 0;
 let cachedUser = null;
 let isTradHandler = false;
+let doTrade = true;
 
 
 const formatDateTime = (date) => {
@@ -72,11 +73,16 @@ const updateUser = async (attempts = 3) => {
 
 
 const tradeHandler = async (ltp, userName, optionType) => {
+  let user = await fetchUser(userName);
+  if(user.todayNegativeTrades == 0 || user.todayNegativeTrades == 1 ){
+    doTrade = true;
+  }
+  if (!doTrade) {
+    return;
+  }
   if(!isTradHandler){
-    console.log("Tradhandler started for user ",userName,", LTP: ", ltp);
     isTradHandler = true
   }
-  let user = await fetchUser(userName);
   if (!user) return;
 
 
@@ -132,6 +138,14 @@ const tradeHandler = async (ltp, userName, optionType) => {
       user.availableBalance += (exitPrice * state.position * lotSize) - 50;
       user.totalNegativeTrades += 1;
       user.todayNegativeTrades +=1;
+    }
+    if (user.todayNegativeTrades > 1) {
+      doTrade = false;
+      console.log("user lost 2 trades this today, we are closing", user.name)
+    }
+    if (user.todayPositiveTrades > 1) {
+      doTrade = false;
+      console.log("user won 2 trades this today, we are closing", user.name)
     }
     user.netProfitOrLoss +=(profit);
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
