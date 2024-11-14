@@ -326,7 +326,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
     } else {
       user.availableBalance += (exitPrice * state.position * lotSize) - 50;
       user.totalNegativeTrades += 1;
-      user.totalNegativeTrades +=1;
+      user.todayNegativeTrades +=1;
     }
     user.netProfitOrLoss +=(profit);
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
