@@ -14,7 +14,7 @@ const { updateUserDetails } = require("../services/simulateLTPUpdates")
 
 let instrumentKeyPE = "";
 let instrumentKeyCE = "";
-let instrumentKeys = ["0", "1", "BNPE", "BNCE"];
+let instrumentKeys = ["0", "1", "BANKNIFTY 50150 PE 27 NOV 24", "BNBANKNIFTY 50100 CE 27 NOV 24CE"];
 
 const generateToken = async (req, res) => {
   const { code } = req.body;
@@ -270,7 +270,7 @@ const getBankNiftyValue = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Trading symbols BankNifty generated successfully", data });
+      .json({ message: "Trading symbols BankNifty generated successfully"+data.callInstrumentKey, data });
   } catch (error) {
     res
       .status(200)

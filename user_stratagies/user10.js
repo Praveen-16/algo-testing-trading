@@ -22,6 +22,12 @@ let cachedUser = null;
 let isTradHandler = false;
 let doTrade = true;
 
+const MAX_VALUES_LENGTH = 900;
+const INCREASE_PERCENTAGE = 1.4;
+const STOP_LOSE =  0.8;
+const TARGET =  1.07; 
+
+
 
 const formatDateTime = (date) => {
   const options = {
@@ -94,7 +100,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
     value: ltp,
     time: new Date()  
   });  
-  if (state.previousPrices.length === 900) state.previousPrices.shift();
+  if (state.previousPrices.length === MAX_VALUES_LENGTH) state.previousPrices.shift();
 
   if (valueArray.length > 5) {
     valueArray.shift();  
@@ -102,7 +108,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
 
   const currentPrice = ltp;
-  const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * 1.4);
+  const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * INCREASE_PERCENTAGE);
 
 
   if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && state.position == 0) {
@@ -113,8 +119,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
     buyAmount = (maxLots * currentPrice * lotSize);
     user.availableBalance -= (maxLots * currentPrice * lotSize) - 50;
     state.buyPrice = currentPrice;
-    state.stopLoss = state.buyPrice * 0.8;
-    state.profitTarget = state.buyPrice * 1.07;
+    state.stopLoss = state.buyPrice * STOP_LOSE;
+    state.profitTarget = state.buyPrice * TARGET;
     user.totalTrades++;
     user.todayTradesCount++;
 

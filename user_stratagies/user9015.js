@@ -23,9 +23,9 @@ let isTradHandler = false;
 let doTrade = true;
 
 const MAX_VALUES_LENGTH = 2000;
-const INCREASE_PERCENTAGE = 2;
-const STOP_LOSE = 0.92;
-const TARGET = 1.05;
+const INCREASE_PERCENTAGE = 1.9;
+const STOP_LOSE = 0.91;
+const TARGET = 1.15;
 
 const formatDateTime = (date) => {
   const options = {
@@ -157,7 +157,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
       user.doTrade = false
       console.log("user lost 2 trades this today, we are closing", user.name);
     }
-    if (user.todayPositiveTrades > 1) {
+    if (user.todayPositiveTrades > 2) {
       user.doTrade = false;
       console.log("user won 2 trades this today, we are closing", user.name);
     }
@@ -179,18 +179,18 @@ const tradeHandler = async (ltp, userName, optionType) => {
   await updateUser();
 };
 
-const user1005CE = async (ltp, userName) => {
+const user9015CE = async (ltp, userName) => {
   await tradeHandler(ltp, userName, "CE");
 };
 
-const user1005PE = async (ltp, userName) => {
+const user9015PE = async (ltp, userName) => {
   await tradeHandler(ltp, userName, "PE");
 };
 
-const clearValues606 = () => {
+const clearValues9015 = () => {
   ceState.previousPrices = [];
   peState.previousPrices = [];
   isTradHandler = false;
 };
 
-module.exports = { user1005CE, user1005PE, clearValues606 };
+module.exports = { user9015CE, user9015PE, clearValues9015 };

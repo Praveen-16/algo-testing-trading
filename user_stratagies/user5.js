@@ -205,6 +205,9 @@ let isSaving = false;
 let isTradeHandlerActive = false;
 let doTrade = true;
 const MAX_VALUES_LENGTH = 300;
+const INCREASE_PERCENTAGE = 1.25;
+const STOP_LOSE =  0.92;
+const TARGET =  1.07; 
 
 const formatDateTime = (date) => {
   const options = {
@@ -234,7 +237,7 @@ const fetchUser = async (userName, refresh = false) => {
 const createSampleUser = async () => {
   try {
     const sampleUser = new User({
-      name: 'user1005',
+      name: 'user9015',
       capital: 20000,
       availableBalance: 20000,
       netProfitOrLoss: 0,
@@ -302,7 +305,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if (state.previousPrices.length === MAX_VALUES_LENGTH) state.previousPrices.shift();
 
   const currentPrice = ltp;
-  const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * 1.25);
+  const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * INCREASE_PERCENTAGE);
 
   if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && state.position == 0) {
     const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
@@ -310,8 +313,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
     buyAmount = (maxLots * currentPrice * lotSize);
     user.availableBalance -= buyAmount - 50;
     state.buyPrice = currentPrice;
-    state.stopLoss = state.buyPrice * 0.92;
-    state.profitTarget = state.buyPrice * 1.07;
+    state.stopLoss = state.buyPrice * STOP_LOSE;
+    state.profitTarget = state.buyPrice * TARGET;
     user.totalTrades++;
     user.todayTradesCount++;
 
@@ -326,7 +329,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
     if (profit > 0) {
       user.availableBalance += principal - 50; 
-      user.unsettledFunds += profit;  
+      user.unsettledFunds += profit.toFixed(2);  
       user.totalPositiveTrades += 1;
       user.todayPositiveTrades +=1
     } else {
@@ -334,11 +337,11 @@ const tradeHandler = async (ltp, userName, optionType) => {
       user.totalNegativeTrades += 1;
       user.todayNegativeTrades +=1;
     }
-    if (user.todayNegativeTrades > 1) {
+    if (user.todayNegativeTrades > 2) {
       doTrade = false;
       console.log("user lost 2 trades this today, we are closing", user.name)
     }
-    if (user.todayPositiveTrades > 1) {
+    if (user.todayPositiveTrades > 5) {
       doTrade = false;
       console.log("user won 2 trades this today, we are closing", user.name)
     }

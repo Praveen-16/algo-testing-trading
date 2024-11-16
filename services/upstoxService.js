@@ -2,6 +2,7 @@ const { user5CE, user5PE } = require("../user_stratagies/user5");
 const { user10CE, user10PE } = require("../user_stratagies/user10");
 const { user606CE, user606PE} = require("../user_stratagies/user606")
 const {user1005PE, user1005CE} = require("../user_stratagies/user1005")
+const { user9015CE, user9015PE } = require("../user_stratagies/user9015")
 const {
   banknifty1CE,
   banknifty1PE,
@@ -91,6 +92,7 @@ const getLTPs = (instrumentKeys, accessToken) => {
             user10PE?.(ltpPE1, "user10");
             user606PE?.(ltpPE1, "user606");
             user1005PE?.(ltpPE1, "user1005");
+            user9015PE?.(ltpPE1, "user9015PE");
             
             
           }
@@ -101,6 +103,7 @@ const getLTPs = (instrumentKeys, accessToken) => {
             user10CE?.(ltpCE1, "user10");
             user606CE?.(ltpCE1, "user606");
             user1005CE?.(ltpCE1, "user1005");
+            user9015CE?.(ltpCE1, "user9015");
           }
 
           if (ffObject3?.marketFF?.ltpc?.ltp != null) {

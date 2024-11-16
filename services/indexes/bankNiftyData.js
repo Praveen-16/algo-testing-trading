@@ -4,20 +4,42 @@ const AccessToken = require('../../models/AccessToken');
 
 let callOptionSymbol = '';
 let putOptionSymbol = '';
-const getNextWednesday = () => {
+// const getNextWednesday = () => {
+//   const today = new Date();
+//   const dayOfWeek = today.getDay();
+//   const nextWednesday = new Date(today);
+//   const daysToWednesday = dayOfWeek <= 3 ? 3 - dayOfWeek : 10 - dayOfWeek;
+
+//   nextWednesday.setDate(today.getDate() + daysToWednesday);
+
+//   const day = nextWednesday.getDate().toString().padStart(2, '0'); // Add leading zero
+//   const month = nextWednesday.toLocaleString('default', { month: 'short' }).toUpperCase();
+//   const year = (nextWednesday.getFullYear() % 100).toString();
+
+//   return `${day} ${month} ${year}`;
+// };
+
+const getLastWednesday = (holidays = []) => {
   const today = new Date();
-  const dayOfWeek = today.getDay();
-  const nextWednesday = new Date(today);
-  const daysToWednesday = dayOfWeek <= 3 ? 3 - dayOfWeek : 10 - dayOfWeek;
-
-  nextWednesday.setDate(today.getDate() + daysToWednesday);
-
-  const day = nextWednesday.getDate().toString().padStart(2, '0'); // Add leading zero
-  const month = nextWednesday.toLocaleString('default', { month: 'short' }).toUpperCase();
-  const year = (nextWednesday.getFullYear() % 100).toString();
-
-  return `${day} ${month} ${year}`;
+  const currentMonth = today.getMonth();
+  const year = today.getFullYear();
+  const lastDayOfMonth = new Date(year, currentMonth + 1, 0);
+  let lastWednesday = new Date(lastDayOfMonth);
+  while (lastWednesday.getDay() !== 3) {
+    lastWednesday.setDate(lastWednesday.getDate() - 1);
+  }
+  const formatDate = (date) => date.toISOString().split('T')[0];
+  if (holidays.includes(formatDate(lastWednesday))) {
+    lastWednesday.setDate(lastWednesday.getDate() - 1);
+  }
+  const day = lastWednesday.getDate().toString().padStart(2, '0');
+  const month = lastWednesday.toLocaleString('default', { month: 'short' }).toUpperCase();
+  const shortYear = (lastWednesday.getFullYear() % 100).toString();
+  return `${day} ${month} ${shortYear}`;
 };
+
+const holidays = ["2024-12-25"];
+console.log(getLastWednesday(holidays));
 
 
 const fetchInstrumentKeys = async (tradingSymbolCE, tradingSymbolPE) => {
@@ -53,7 +75,7 @@ const fetchBankNiftyTradingSymbols = async () => {
     const roundStrikeAbove = Math.ceil(latestPrice / 100) * 100;
     const roundStrikeBelow = Math.floor(latestPrice / 100) * 100;
 
-    const expirationDate = getNextWednesday();
+    const expirationDate = getLastWednesday(holidays)
 
     const callOptionSymbol = `BANKNIFTY ${roundStrikeBelow} CE ${expirationDate}`;
     const putOptionSymbol = `BANKNIFTY ${roundStrikeAbove} PE ${expirationDate}`;
