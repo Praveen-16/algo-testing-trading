@@ -4,21 +4,6 @@ const AccessToken = require('../../models/AccessToken');
 
 let callOptionSymbol = '';
 let putOptionSymbol = '';
-// const getNextWednesday = () => {
-//   const today = new Date();
-//   const dayOfWeek = today.getDay();
-//   const nextWednesday = new Date(today);
-//   const daysToWednesday = dayOfWeek <= 3 ? 3 - dayOfWeek : 10 - dayOfWeek;
-
-//   nextWednesday.setDate(today.getDate() + daysToWednesday);
-
-//   const day = nextWednesday.getDate().toString().padStart(2, '0'); // Add leading zero
-//   const month = nextWednesday.toLocaleString('default', { month: 'short' }).toUpperCase();
-//   const year = (nextWednesday.getFullYear() % 100).toString();
-
-//   return `${day} ${month} ${year}`;
-// };
-
 const getLastWednesday = (holidays = []) => {
   const today = new Date();
   const currentMonth = today.getMonth();
@@ -39,7 +24,6 @@ const getLastWednesday = (holidays = []) => {
 };
 
 const holidays = ["2024-12-25"];
-console.log(getLastWednesday(holidays));
 
 
 const fetchInstrumentKeys = async (tradingSymbolCE, tradingSymbolPE) => {

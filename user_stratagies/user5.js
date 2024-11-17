@@ -297,7 +297,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
     time: new Date()
   });
 
-  if (valueArray.length > 5) {
+  if (valueArray.length > 1000) {
     valueArray.shift();
   }
 
