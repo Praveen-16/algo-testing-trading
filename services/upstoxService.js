@@ -92,7 +92,7 @@ const getLTPs = (instrumentKeys, accessToken) => {
             user10PE?.(ltpPE1, "user10");
             user606PE?.(ltpPE1, "user606");
             user1005PE?.(ltpPE1, "user1005");
-            user9015PE?.(ltpPE1, "user9015PE");
+            user9015PE?.(ltpPE1, "user9015");
             
             
           }

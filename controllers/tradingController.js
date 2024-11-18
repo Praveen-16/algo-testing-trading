@@ -10,11 +10,14 @@ const { clearValues10 } = require("../user_stratagies/user10");
 const { clearValues5 } = require("../user_stratagies/user5");
 const { fetchNiftyTradingSymbols } = require("../services/indexes/nifty50Data");
 const { fetchBankNiftyTradingSymbols } = require("../services/indexes/bankNiftyData")
-const { updateUserDetails } = require("../services/simulateLTPUpdates")
+const { updateUserDetails } = require("../services/simulateLTPUpdates");
+const { clearValues606 } = require("../user_stratagies/user606");
+const { clearValues9015 } = require("../user_stratagies/user9015");
+const { banknifty1Clear } = require("../user_stratagies/BankNifty/bankNifty1");
 
 let instrumentKeyPE = "";
 let instrumentKeyCE = "";
-let instrumentKeys = ["0", "1", "BANKNIFTY 50150 PE 27 NOV 24", "BNBANKNIFTY 50100 CE 27 NOV 24CE"];
+let instrumentKeys = ["Nifty PE", "NIFTY CE", "BANKNIFTY 50150 PE 27 NOV 24", "BNBANKNIFTY 50100 CE 27 NOV 24CE"];
 
 const generateToken = async (req, res) => {
   const { code } = req.body;
@@ -146,6 +149,9 @@ const startTrading = async (req, res) => {
     const ltpResponse = await getLTPs(instrumentKeys, accessToken);
     clearValues10();
     clearValues5();
+    clearValues606();
+    clearValues9015();
+    banknifty1Clear();
 
     res.status(200).json({ message: "Trading started successfully" });
   } catch (error) {
@@ -239,7 +245,7 @@ const getNifty50Value = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Trading symbols Nifty 50 generated successfully", data });
+      .json({ message: "Trading symbols Nifty 50 generated successfully "+data.callInstrumentKey, data });
   } catch (error) {
     res
       .status(200)
@@ -270,7 +276,7 @@ const getBankNiftyValue = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Trading symbols BankNifty generated successfully"+data.callInstrumentKey, data });
+      .json({ message: "Trading symbols BankNifty generated successfully "+data.callInstrumentKey, data });
   } catch (error) {
     res
       .status(200)

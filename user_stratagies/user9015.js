@@ -45,7 +45,7 @@ const fetchUser = async (userName) => {
   if (!cachedUser) {
     cachedUser = await User.findOne({ name: userName });
     if (!cachedUser) {
-      console.error("User not found");
+      console.error("User not found: ", userName);
       return null;
     }
   }
