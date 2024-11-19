@@ -24,8 +24,8 @@ let doTrade = true;
 
 const MAX_VALUES_LENGTH = 900;
 const INCREASE_PERCENTAGE = 1.4;
-const STOP_LOSE =  0.8;
-const TARGET =  1.07; 
+const STOP_LOSE =  0.95;
+const TARGET =  1.1; 
 
 
 
@@ -81,7 +81,7 @@ const updateUser = async (attempts = 3) => {
 const tradeHandler = async (ltp, userName, optionType) => {
   let user = await fetchUser(userName);
   if(user.todayNegativeTrades == 0 || user.todayNegativeTrades == 1 ){
-    doTrade = true;
+    user.doTrade = true;
   }
   if (!doTrade) {
     return;
@@ -146,11 +146,11 @@ const tradeHandler = async (ltp, userName, optionType) => {
       user.todayNegativeTrades +=1;
     }
     if (user.todayNegativeTrades > 1) {
-      doTrade = false;
+      user.doTrade = false;
       console.log("user lost 2 trades this today, we are closing", user.name)
     }
     if (user.todayPositiveTrades > 1) {
-      doTrade = false;
+      user.doTrade = false;
       console.log("user won 2 trades this today, we are closing", user.name)
     }
     user.netProfitOrLoss +=(profit);
@@ -181,6 +181,7 @@ const clearValues10 = ()=>{
   ceState.previousPrices =[];
   peState.previousPrices = [];
   isTradHandler = false;
+  cachedUser = null;
 }
 
 module.exports = { user10CE, user10PE, clearValues10 };

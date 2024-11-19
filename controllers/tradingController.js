@@ -162,6 +162,11 @@ const startTrading = async (req, res) => {
 
 const stopTrading = async (req, res) => {
   try {
+    clearValues10();
+    clearValues5();
+    clearValues606();
+    clearValues9015();
+    banknifty1Clear();
     closeWebSocket();
     res.status(200).json({ message: "WebSocket connection closed." });
   } catch (error) {

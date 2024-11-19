@@ -191,6 +191,7 @@ const clearValues9015 = () => {
   ceState.previousPrices = [];
   peState.previousPrices = [];
   isTradHandler = false;
+  cachedUser = null;
 };
 
 module.exports = { user9015CE, user9015PE, clearValues9015 };

@@ -278,7 +278,7 @@ const updateUser = async (attempts = 3) => {
 const tradeHandler = async (ltp, userName, optionType) => {
   let user = await fetchUser(userName);
   if(user.todayNegativeTrades == 0 || user.todayNegativeTrades == 1 ){
-    doTrade = true;
+    user.doTrade = true;
   }
   if (!doTrade) {
     return;
@@ -338,11 +338,11 @@ const tradeHandler = async (ltp, userName, optionType) => {
       user.todayNegativeTrades +=1;
     }
     if (user.todayNegativeTrades > 2) {
-      doTrade = false;
+      user.doTrade = false;
       console.log("user lost 2 trades this today, we are closing", user.name)
     }
     if (user.todayPositiveTrades > 5) {
-      doTrade = false;
+      user.doTrade = false;
       console.log("user won 2 trades this today, we are closing", user.name)
     }
     user.netProfitOrLoss +=(profit);
@@ -369,6 +369,7 @@ const clearValues5 = () => {
   ceState.previousPrices = [];
   peState.previousPrices = [];
   isTradeHandlerActive = false;
+  cachedUser=null
 };
 
 module.exports = { user5CE, user5PE, createSampleUser, clearValues5 };

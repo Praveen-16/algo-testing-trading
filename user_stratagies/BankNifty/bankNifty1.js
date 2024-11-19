@@ -175,6 +175,7 @@ const banknifty1Clear = ()=>{
   ceState.previousPrices =[];
   peState.previousPrices = [];
   isTradHandler = false;
+  cachedUser = null;
 }
 
 module.exports = { banknifty1CE, banknifty1PE, banknifty1Clear };
