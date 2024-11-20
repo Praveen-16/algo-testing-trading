@@ -6,7 +6,7 @@ const { stopTrading, startTrading, getNifty50Value, getBankNiftyValue } = requir
 
 cron.schedule('10 9 * * *', async () => {
   try {
-    stopTrading()
+  const response =  await axios.post(`${BASE_URL}/stop-websocket`);
     const users = await User.find();
     for (const user of users) {
       if (user.unsettledFunds > 0) {
@@ -18,7 +18,6 @@ cron.schedule('10 9 * * *', async () => {
       user.todayNegativeTrades = 0;
       user.doTrade = true;
       await user.save();
-      console.log(`Updated daily stats and transferred unsettled funds for user ${user.name}`);
     }
     console.log('Daily unsettled funds transfer, trade count reset, and doTrade flag update completed.');
   } catch (error) {
