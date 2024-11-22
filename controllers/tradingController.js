@@ -14,6 +14,7 @@ const { updateUserDetails } = require("../services/simulateLTPUpdates");
 const { clearValues606 } = require("../user_stratagies/user606");
 const { clearValues9015 } = require("../user_stratagies/user9015");
 const { banknifty1Clear } = require("../user_stratagies/BankNifty/bankNifty1");
+const { clearValuesday1009 } = require("../user_stratagies/day1009");
 
 let instrumentKeyPE = "";
 let instrumentKeyCE = "";
@@ -167,6 +168,7 @@ const stopTrading = async (req, res) => {
     clearValues606();
     clearValues9015();
     banknifty1Clear();
+    clearValuesday1009();
     closeWebSocket();
     res.status(200).json({ message: "WebSocket connection closed." });
   } catch (error) {
