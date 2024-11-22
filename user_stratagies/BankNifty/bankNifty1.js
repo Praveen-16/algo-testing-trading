@@ -77,7 +77,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if(user.todayNegativeTrades == 0 || user.todayNegativeTrades == 1 ){
     doTrade = true;
   }
-  if (!doTrade) {
+  if (!user.doTrade) {
     return;
   }
   if(!isTradHandler){

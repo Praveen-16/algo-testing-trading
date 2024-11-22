@@ -79,7 +79,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if (user.todayNegativeTrades == 0 || user.todayNegativeTrades == 1) {
     user.doTrade = true;
   }
-  if (!doTrade) {
+  if (!user.doTrade) {
     return;
   }
   if (!isTradHandler) {
@@ -110,9 +110,9 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if (
     isPriceIncreased &&
     user.availableBalance >= currentPrice * lotSize &&
-    state.position == 0
+    state.position == 0 &&
+    currentPrice > 10
   ) {
-    // console.log( "check prices: ",state.previousPrices)
 
     const maxLots = Math.floor(
       user.availableBalance / (currentPrice * lotSize)
