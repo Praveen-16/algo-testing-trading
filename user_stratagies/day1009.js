@@ -22,8 +22,8 @@ let cachedUser = null;
 let isTradHandler = false;
 let doTrade = true;
 
-const MAX_VALUES_LENGTH = 900;
-const INCREASE_PERCENTAGE = 1.4;
+// const MAX_VALUES_LENGTH = 900;
+const INCREASE_PERCENTAGE = 2;
 const STOP_LOSE =  0.95;
 const TARGET =  1.1; 
 
@@ -86,14 +86,14 @@ const tradeHandler = async (ltp, userName, optionType) => {
     user.doTrade = true;
   }
   if (!user.doTrade) {
-    console.log("closing the user ", user.name)
     return;
   }
   if(!isTradHandler){
-    previousdayLTP = ltp
-    console.log("pervious LTP Setting: ",previousdayLTP)
     isTradHandler = true
   }
+  if (ltp < previousdayLTP || previousdayLTP === undefined) {
+    previousdayLTP = ltp;
+}
   if (!user) return;
 
 
@@ -116,7 +116,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
 //   const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * INCREASE_PERCENTAGE);
 
 
-  if ( (previousdayLTP *2 < currentPrice) && user.availableBalance >= currentPrice * lotSize && state.position == 0) {
+  if ( (previousdayLTP * INCREASE_PERCENTAGE < currentPrice) && user.availableBalance >= currentPrice * lotSize && state.position == 0) {
     // console.log( "check prices: ",state.previousPrices)
 
     const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
