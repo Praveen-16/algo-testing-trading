@@ -5,7 +5,8 @@ let ceState = {
   position: 0,
   buyPrice: 0,
   stopLoss: 0,
-  profitTarget: 0
+  profitTarget: 0,
+  previousLTP:0
 };
 
 let peState = {
@@ -13,7 +14,8 @@ let peState = {
   position: 0,
   buyPrice: 0,
   stopLoss: 0,
-  profitTarget: 0
+  profitTarget: 0,
+  previousLTP:0
 };
 
 let lotSize = 25;
@@ -27,7 +29,6 @@ const INCREASE_PERCENTAGE = 2;
 const STOP_LOSE =  0.95;
 const TARGET =  1.1; 
 
-let previousdayLTP = 0;
 
 
 const formatDateTime = (date) => {
@@ -91,15 +92,15 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if(!isTradHandler){
     isTradHandler = true
   }
-  if (ltp < previousdayLTP || previousdayLTP === undefined) {
-    previousdayLTP = ltp;
-}
+
   if (!user) return;
 
 
   let state = optionType === 'CE' ? ceState : peState;
   let valueArray = optionType === 'CE' ? user.ceValues : user.peValues;
-
+  if (ltp < state.previousLTP || state.previousLTP === undefined) {
+    state.previousLTP = ltp;
+  }
 //   state.previousPrices.push(ltp);
   valueArray.push({
     value: ltp,
@@ -116,7 +117,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
 //   const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * INCREASE_PERCENTAGE);
 
 
-  if ( (previousdayLTP * INCREASE_PERCENTAGE < currentPrice) && user.availableBalance >= currentPrice * lotSize && state.position == 0) {
+  if ( (state.previousLTP * INCREASE_PERCENTAGE < currentPrice) && user.availableBalance >= currentPrice * lotSize && state.position == 0) {
     // console.log( "check prices: ",state.previousPrices)
 
     const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
