@@ -79,6 +79,14 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if (user.todayNegativeTrades == 0 || user.todayNegativeTrades == 1) {
     user.doTrade = true;
   }
+  if (user.todayNegativeTrades > 1) {
+    user.doTrade = false
+    console.log("user lost 2 trades this today, we are closing", user.name);
+  }
+  if (user.todayPositiveTrades > 2) {
+    user.doTrade = false;
+    console.log("user won 3 trades this today, we are closing", user.name);
+  }
   if (!user.doTrade) {
     return;
   }
@@ -110,7 +118,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if (
     isPriceIncreased &&
     user.availableBalance >= currentPrice * lotSize &&
-    state.position == 0
+    state.position == 0 &&
+    currentPrice > 10
   ) {
     // console.log( "check prices: ",state.previousPrices)
 
@@ -153,14 +162,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
       user.totalNegativeTrades += 1;
       user.todayNegativeTrades += 1;
     }
-    if (user.todayNegativeTrades > 1) {
-      user.doTrade = false
-      console.log("user lost 2 trades this today, we are closing", user.name);
-    }
-    if (user.todayPositiveTrades > 2) {
-      user.doTrade = false;
-      console.log("user won 2 trades this today, we are closing", user.name);
-    }
+
     user.netProfitOrLoss += profit;
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(
       2

@@ -6,7 +6,8 @@ let ceState = {
   buyPrice: 0,
   stopLoss: 0,
   profitTarget: 0,
-  previousLTP:0
+  previousLTP:0,
+  minPrice:0
 };
 
 let peState = {
@@ -15,7 +16,8 @@ let peState = {
   buyPrice: 0,
   stopLoss: 0,
   profitTarget: 0,
-  previousLTP:0
+  previousLTP:0,
+  minPrice:0
 };
 
 let lotSize = 25;
@@ -79,97 +81,89 @@ const updateUser = async (attempts = 3) => {
 };
 
 
-
 const tradeHandler = async (ltp, userName, optionType) => {
-   
   let user = await fetchUser(userName);
-  if(user.todayNegativeTrades == 0 || user.todayNegativeTrades == 1 ){
+  if (user.todayNegativeTrades <= 1) {
     user.doTrade = true;
+  } else {
+    user.doTrade = false;
+    console.log("user reached trading limit for today ", user.name);
   }
-  if (!user.doTrade) {
-    return;
-  }
-  if(!isTradHandler){
-    isTradHandler = true
-  }
+  if (!user.doTrade || !user) return;
 
-  if (!user) return;
+  let state = optionType === "CE" ? ceState : peState;
+  let valueArray = optionType === "CE" ? user.ceValues : user.peValues;
 
-
-  let state = optionType === 'CE' ? ceState : peState;
-  let valueArray = optionType === 'CE' ? user.ceValues : user.peValues;
-  if (ltp < state.previousLTP || state.previousLTP === undefined) {
-    state.previousLTP = ltp;
-  }
-//   state.previousPrices.push(ltp);
-  valueArray.push({
-    value: ltp,
-    time: new Date()  
-  });  
-//   if (state.previousPrices.length === MAX_VALUES_LENGTH) state.previousPrices.shift();
-
-  if (valueArray.length > 5) {
-    valueArray.shift();  
+  if (!state.minPrice || ltp < state.minPrice) {
+    state.minPrice = ltp;
   }
 
+  const isPriceIncreased = ltp >= state.minPrice * INCREASE_PERCENTAGE;
 
-  const currentPrice = ltp;
-//   const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * INCREASE_PERCENTAGE);
+  valueArray.push({ value: ltp, time: new Date() });
+  if (valueArray.length > 5) valueArray.shift();
 
-
-  if ( (state.previousLTP * INCREASE_PERCENTAGE < currentPrice) && user.availableBalance >= currentPrice * lotSize && state.position == 0) {
-    // console.log( "check prices: ",state.previousPrices)
-
-    const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
+  if (
+    isPriceIncreased &&
+    user.availableBalance >= ltp * lotSize &&
+    state.position === 0 && currentPrice > 10
+  ) {
+    const maxLots = Math.floor(user.availableBalance / (ltp * lotSize));
     state.position += maxLots;
-    buyAmount = (maxLots * currentPrice * lotSize);
-    user.availableBalance -= (maxLots * currentPrice * lotSize) - 50;
-    state.buyPrice = currentPrice;
+    buyAmount = maxLots * ltp * lotSize;
+    user.availableBalance -= buyAmount - 50;
+    state.buyPrice = ltp;
     state.stopLoss = state.buyPrice * STOP_LOSE;
     state.profitTarget = state.buyPrice * TARGET;
     user.totalTrades++;
     user.todayTradesCount++;
 
-    const tradeStatement = `Bought ${optionType} at ${state.buyPrice.toFixed(2)}, Units: ${state.position.toFixed(2)}, Amount: ${buyAmount.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
-    user.trades.push(tradeStatement );
-
+    const tradeStatement = `Bought ${optionType} at ${state.buyPrice.toFixed(
+      2
+    )}, Units: ${state.position.toFixed(2)}, Amount: ${buyAmount.toFixed(
+      2
+    )}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(
+      new Date()
+    )}`;
+    user.trades.push(tradeStatement);
   }
 
-
-  if (state.position > 0 && (currentPrice <= state.stopLoss || currentPrice >= state.profitTarget)) {
-
-    const exitPrice = currentPrice;
+  if (
+    state.position > 0 &&
+    (ltp <= state.stopLoss || ltp >= state.profitTarget)
+  ) {
+    const exitPrice = ltp;
     const principal = state.buyPrice * state.position * lotSize;
     const profit = (exitPrice - state.buyPrice) * state.position * lotSize;
     if (profit > 0) {
-      user.availableBalance += principal - 50; 
-      user.unsettledFunds += profit;  
+      user.availableBalance += principal - 50;
+      user.unsettledFunds += profit;
       user.totalPositiveTrades += 1;
-      user.todayPositiveTrades +=1
+      user.todayPositiveTrades += 1;
     } else {
-      user.availableBalance += (exitPrice * state.position * lotSize) - 50;
+      user.availableBalance += exitPrice * state.position * lotSize - 50;
       user.totalNegativeTrades += 1;
-      user.todayNegativeTrades +=1;
+      user.todayNegativeTrades += 1;
     }
-    if (user.todayNegativeTrades > 1) {
-        console.log("user lost 2 trades this today, we are closing", user.name)
-      user.doTrade = false;
-    }
-    if (user.todayPositiveTrades > 1) {
-        console.log("user won 2 trades this today, we are closing", user.name)
-      user.doTrade = false;
-    }
-    user.netProfitOrLoss +=(profit);
-    const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
-    user.trades.push(tradeStatement );
-    
-    state.previousPrices.length = 0;  
+
+    user.netProfitOrLoss += profit;
+    const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(
+      2
+    )}, Profit/Loss: ${profit.toFixed(
+      2
+    )}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(
+      new Date()
+    )}`;
+    user.trades.push(tradeStatement);
+
+    state.minPrice = null;
     state.position = 0;
     isTradHandler = false;
   }
 
   await updateUser();
 };
+
 
 
 const day1009CE = async (ltp, userName) => {
