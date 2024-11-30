@@ -28,6 +28,13 @@ cron.schedule('10 9 * * *', async () => {
 });
 
 cron.schedule('13 9 * * *', async () => {
+  const today = new Date();
+  const day = today.getDay(); 
+  if (day === 0 || day === 6) {
+    console.log('No trading on weekends.');
+    return;
+  }
+
   try {
     await axios.get(`${BASE_URL}/nifty50data`);
     console.log('Nifty50 value fetched successfully.');
