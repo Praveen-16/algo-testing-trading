@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const setTradingSymbolForUser = require('../services/setTradingSymbolForUser');
+const { getLTPs } = require('../services/upstoxService');
 
 let ceState = {
   previousPrices: [],
@@ -118,10 +120,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
   const currentPrice = ltp;
   const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * INCREASE_PERCENTAGE);
 
-
+  // BUY
   if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && state.position == 0 && currentPrice > 10) {
-    // console.log( "check prices: ",state.previousPrices)
-
     const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
     state.position += maxLots;
     buyAmount = (maxLots * currentPrice * lotSize);
@@ -137,7 +137,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
   }
 
-
+  //SELL
   if (state.position > 0 && (currentPrice <= state.stopLoss || currentPrice >= state.profitTarget)) {
 
     const exitPrice = currentPrice;
@@ -161,6 +161,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
     state.previousPrices.length = 0;  
     state.position = 0;
     isTradHandler = false;
+    await setTradingSymbolForUser("user10");
+    await getLTPs();
   }
 
   await updateUser();

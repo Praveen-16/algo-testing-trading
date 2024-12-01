@@ -12,6 +12,8 @@ const {
   simulateLTPUpdates,
   simulateLTPUpdates10,
 } = require("../services/simulateLTPUpdates");
+const fetchInstrumentKeys = require('./fetchInstrumentKeys');
+const fetchAccessToken = require('./fetchAccessToken')
 
 const dotenv = require("dotenv");
 const UpstoxClient = require("upstox-js-sdk");
@@ -22,7 +24,8 @@ dotenv.config();
 
 let activeWebSocket = null; // Store the WebSocket instance globally
 
-const getLTPs = (instrumentKeys, accessToken) => {
+const getLTPs = async () => {
+  const accessToken = await fetchAccessToken()
   let apiVersion = "2.0";
   let defaultClient = UpstoxClient.ApiClient.instance;
   let OAUTH2 = defaultClient.authentications["OAUTH2"];
@@ -43,6 +46,9 @@ const getLTPs = (instrumentKeys, accessToken) => {
   };
 
   const connectWebSocket = async (wsUrl) => {
+    const instrumentKeys = await fetchInstrumentKeys();
+
+    console.log("checking for ", instrumentKeys);
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(wsUrl, {
         headers: {
@@ -57,7 +63,7 @@ const getLTPs = (instrumentKeys, accessToken) => {
         activeWebSocket = ws;
         resolve(ws);
 
-        console.log("checking for ", instrumentKeys);
+        
         setTimeout(() => {
           const data = {
             guid: "someguid",
@@ -86,38 +92,50 @@ const getLTPs = (instrumentKeys, accessToken) => {
           var ffObject2 = jsObject?.feeds?.[instrumentKeys[1]]?.ff;
           var ffObject3 = jsObject?.feeds?.[instrumentKeys[2]]?.ff;
           var ffObject4 = jsObject?.feeds?.[instrumentKeys[3]]?.ff;
-
+          var ffObject5 = jsObject?.feeds?.[instrumentKeys[4]]?.ff;
+          var ffObject6 = jsObject?.feeds?.[instrumentKeys[5]]?.ff;
           if (ffObject1?.marketFF?.ltpc?.ltp != null) {
-            let ltpPE1 = ffObject1.marketFF.ltpc.ltp;
-            user5PE?.(ltpPE1, "user5");
-            user10PE?.(ltpPE1, "user10");
-            user606PE?.(ltpPE1, "user606");
-            user1005PE?.(ltpPE1, "user1005");
-            user9015PE?.(ltpPE1, "user9015");
-             day1009PE?.(ltpPE1, "day1009") 
-            
-            
+            let ltpCE1 = ffObject1.marketFF.ltpc.ltp;
+            user5CE?.(ltpCE1, "user5");
+          
+            user606CE?.(ltpCE1, "user606");
+            user1005CE?.(ltpCE1, "user1005");
+          
+            day1009CE?.(ltpCE1, "day1009") 
+           
           }
 
           if (ffObject2?.marketFF?.ltpc?.ltp != null) {
-            let ltpCE1 = ffObject2.marketFF.ltpc.ltp;
-            user5CE?.(ltpCE1, "user5");
-            user10CE?.(ltpCE1, "user10");
-            user606CE?.(ltpCE1, "user606");
-            user1005CE?.(ltpCE1, "user1005");
-            user9015CE?.(ltpCE1, "user9015");
-            day1009CE?.(ltpCE1, "day1009") 
+            let ltpPE1 = ffObject2.marketFF.ltpc.ltp;
+            user5PE?.(ltpPE1, "user5");
+            
+            user606PE?.(ltpPE1, "user606");
+            user1005PE?.(ltpPE1, "user1005");
+           
+            day1009PE?.(ltpPE1, "day1009") 
+        
           }
 
           if (ffObject3?.marketFF?.ltpc?.ltp != null) {
-            let ltpPE2 = ffObject3.marketFF.ltpc.ltp;
-            banknifty1PE?.(ltpPE2, "Bank Nifty 1");
+            let ltpCE1 = ffObject3.marketFF.ltpc.ltp;
+            user10CE?.(ltpCE1, "user10");
           }
 
           if (ffObject4?.marketFF?.ltpc?.ltp != null) {
-            let ltpCE2 = ffObject4.marketFF.ltpc.ltp;
-            banknifty1CE?.(ltpCE2, "Bank Nifty 1");
+            let ltpPE1 = ffObject4.marketFF.ltpc.ltp;
+            user10PE?.(ltpPE1, "user10");
           }
+
+          if (ffObject5?.marketFF?.ltpc?.ltp != null) {
+            let ltpCE1 = ffObject5.marketFF.ltpc.ltp;
+            user9015CE?.(ltpCE1, "user9015");
+          }
+
+          if (ffObject6?.marketFF?.ltpc?.ltp != null) {
+            let ltpPE1 = ffObject6.marketFF.ltpc.ltp;
+            user9015PE?.(ltpPE1, "user9015");
+          }
+
 
           // simulateLTPUpdates("user5");
           // simulateLTPUpdates10("user10");

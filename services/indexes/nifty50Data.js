@@ -1,5 +1,5 @@
 const axios = require("axios");
-const TradingSymbols = require("../../models/tradingSymbolsSchema ");
+const TradingSymbols = require("../../models/tradingSymbolsSchema");
 const AccessToken = require("../../models/AccessToken");
 
 let callOptionSymbol = "";
@@ -59,11 +59,9 @@ const fetchNiftyTradingSymbols = async () => {
 
     const latestPrice = response.data.data["NSE_INDEX:Nifty 50"].last_price;
 
-    // Calculate strike prices
     const roundStrikeAbove = Math.ceil(latestPrice / 50) * 50;
     const roundStrikeBelow = Math.floor(latestPrice / 50) * 50;
 
-    // Generate trading symbols
     const expirationDate = getNextThursday();
     const callOptionSymbol = `NIFTY ${roundStrikeBelow} CE ${expirationDate}`;
     const putOptionSymbol = `NIFTY ${roundStrikeAbove} PE ${expirationDate}`;

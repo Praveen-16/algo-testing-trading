@@ -1,4 +1,7 @@
 const User = require("../models/User");
+const setTradingSymbolForUser = require("../services/setTradingSymbolForUser");
+const { getLTPs } = require("../services/upstoxService");
+
 
 let ceState = {
   previousPrices: [],
@@ -176,6 +179,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
     state.previousPrices.length = 0;
     state.position = 0;
     isTradHandler = false;
+    await setTradingSymbolForUser("user10");
+    await getLTPs();
   }
 
   await updateUser();

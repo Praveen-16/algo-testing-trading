@@ -1,5 +1,5 @@
 const axios = require('axios');
-const TradingSymbols = require('../../models/tradingSymbolsSchema ');
+const TradingSymbols = require('../../models/tradingSymbolsSchema');
 const AccessToken = require('../../models/AccessToken');
 
 let callOptionSymbol = '';

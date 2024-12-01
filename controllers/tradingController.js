@@ -2,7 +2,7 @@ const User = require("../models/User");
 const Uptime = require("../models/UpTimeSchema");
 const { getLTPs } = require("../services/upstoxService");
 const AccessToken = require("../models/AccessToken");
-const TradingSymbols = require("../models/tradingSymbolsSchema ");
+const TradingSymbols = require("../models/tradingSymbolsSchema");
 const { tradeStrategy } = require("../services/marketDataService");
 const { closeWebSocket } = require("../services/upstoxService");
 const axios = require("axios");
@@ -15,6 +15,7 @@ const { clearValues606 } = require("../user_stratagies/user606");
 const { clearValues9015 } = require("../user_stratagies/user9015");
 const { banknifty1Clear } = require("../user_stratagies/BankNifty/bankNifty1");
 const { clearValuesday1009 } = require("../user_stratagies/day1009");
+const setTradingSymbolForUser = require('../services/setTradingSymbolForUser')
 
 let instrumentKeyPE = "";
 let instrumentKeyCE = "";
@@ -147,7 +148,7 @@ const startTrading = async (req, res) => {
       return res.status(401).json({ error: "Access token is required" });
     }
 
-    const ltpResponse = await getLTPs(instrumentKeys, accessToken);
+    const ltpResponse = await getLTPs();
     clearValues10();
     clearValues5();
     clearValues606();
@@ -231,6 +232,8 @@ const getUserData = async (req, res) => {
 const getNifty50Value = async (req, res) => {
   try {
     const data = await fetchNiftyTradingSymbols();
+    await setTradingSymbolForUser("user10");
+    await setTradingSymbolForUser("user9015");
     if (data) {
       const getInstrumentKeys = async () => {
         try {
@@ -326,6 +329,26 @@ const addUnsetteldFunds = async (req, res) => {
     res.status(500).json({ message: 'Error Updating Unsetteled Funds' });
   }
 };
+
+// const addUnsetteldFunds = async (req, res) => {
+
+//   try {
+//     // Wait for setTradingSymbolForUser to complete
+//     console.log('start')
+//     await setTradingSymbolForUser("user90");
+//     console.log('mid')
+    
+//     // Now that the trading symbols are set, fetch the LTPs
+//     const start = await getLTPs();
+//     console.log('end')
+
+  
+    
+//   } catch (error) {
+//     console.error('Error in daily unsettled funds transfer:', error);
+//     res.status(500).json({ message: 'Error Updating Unsetteled Funds' });
+//   }
+// };
 
 
 
