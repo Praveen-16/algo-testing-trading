@@ -1,6 +1,5 @@
 const User = require("../models/User");
 const setTradingSymbolForUser = require("../services/setTradingSymbolForUser");
-const { getLTPs } = require("../services/upstoxService");
 
 
 let ceState = {
@@ -180,7 +179,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
     state.position = 0;
     isTradHandler = false;
     await setTradingSymbolForUser("user10");
-    await getLTPs();
+    const { getLTPs } = await import('../services/upstoxService.js');
+    await getLTPs()
   }
 
   await updateUser();
