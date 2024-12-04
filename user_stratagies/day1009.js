@@ -83,13 +83,14 @@ const updateUser = async (attempts = 3) => {
 
 const tradeHandler = async (ltp, userName, optionType) => {
   let user = await fetchUser(userName);
+  if (!user.doTrade || !user) return;
   if (user.todayNegativeTrades <= 1) {
     user.doTrade = true;
   } else {
     user.doTrade = false;
     console.log("user reached trading limit for today ", user.name);
   }
-  if (!user.doTrade || !user) return;
+ 
 
   let state = optionType === "CE" ? ceState : peState;
   let valueArray = optionType === "CE" ? user.ceValues : user.peValues;

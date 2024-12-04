@@ -72,29 +72,6 @@ const fetchNiftyTradingSymbols = async () => {
     );
 
 
-    let name = "Nifty 50";
-    const existingSymbols = await TradingSymbols.findOne({ name });
-    if (existingSymbols) {
-      // Update existing symbols
-      existingSymbols.callOptionSymbol = callOptionSymbol;
-      existingSymbols.putOptionSymbol = putOptionSymbol;
-      existingSymbols.callInstrumentKey = instrumentKeyCE;
-      existingSymbols.putInstrumentKey = instrumentKeyPE;
-      existingSymbols.updatedAt = new Date().toLocaleString("en-IN", {
-        timeZone: "Asia/Kolkata",
-      });
-
-      await existingSymbols.save();
-    } else {
-      // Save new symbols along with the name and instrument keys
-      await TradingSymbols.create({
-        name,
-        callOptionSymbol,
-        putOptionSymbol,
-        callInstrumentKey: instrumentKeyCE,
-        putInstrumentKey: instrumentKeyPE,
-      });
-    }
 
     return {
       callOptionSymbol,

@@ -78,19 +78,16 @@ const updateUser = async (attempts = 3) => {
 
 const tradeHandler = async (ltp, userName, optionType) => {
   let user = await fetchUser(userName);
-  if (user.todayNegativeTrades == 0 || user.todayNegativeTrades == 1) {
-    user.doTrade = true;
+  if (!user.doTrade) {
+    return;
   }
   if (user.todayNegativeTrades > 1) {
     user.doTrade = false
-    console.log("user lost 2 trades this today, we are closing", user.name);
+    console.log("user lost 2 trades this today, we are closing ",optionType+ " ", user.name);
   }
   if (user.todayPositiveTrades > 2) {
     user.doTrade = false;
-    console.log("user won 3 trades this today, we are closing", user.name);
-  }
-  if (!user.doTrade) {
-    return;
+    console.log("user won 3 trades this today, we are closing ",optionType+ " ", user.name);
   }
   if (!isTradHandler) {
     isTradHandler = true;
@@ -178,7 +175,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
     state.previousPrices.length = 0;
     state.position = 0;
     isTradHandler = false;
-    await setTradingSymbolForUser("user10");
+    await setTradingSymbolForUser("user9015");
     const { getLTPs } = await import('../services/upstoxService.js');
     await getLTPs()
   }

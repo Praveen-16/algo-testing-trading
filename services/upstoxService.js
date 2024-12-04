@@ -97,6 +97,7 @@ const getLTPs = async () => {
           if (ffObject1?.marketFF?.ltpc?.ltp != null) {
             let ltpCE1 = ffObject1.marketFF.ltpc.ltp;
             user5CE?.(ltpCE1, "user5");
+
           
             user606CE?.(ltpCE1, "user606");
             user1005CE?.(ltpCE1, "user1005");
@@ -134,6 +135,7 @@ const getLTPs = async () => {
           if (ffObject6?.marketFF?.ltpc?.ltp != null) {
             let ltpPE1 = ffObject6.marketFF.ltpc.ltp;
             user9015PE?.(ltpPE1, "user9015");
+            
           }
 
 
