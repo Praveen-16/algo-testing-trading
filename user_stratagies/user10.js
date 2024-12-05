@@ -85,7 +85,6 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
   let user = await fetchUser(userName);
   if (!user.doTrade) {
-    console.log("check o")
     return;
   }
   if (user.todayNegativeTrades > 1) {
