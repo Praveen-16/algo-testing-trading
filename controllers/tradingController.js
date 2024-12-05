@@ -148,7 +148,7 @@ const startTrading = async (req, res) => {
       console.log("Access token is missing");
       return res.status(401).json({ error: "Access token is required" });
     }
-    setTradingSymbolForUser('Nifty 50')
+    
 
     const ltpResponse = await getLTPs();
     clearValues10();
@@ -235,9 +235,10 @@ const getUserData = async (req, res) => {
 
 const getNifty50Value = async (req, res) => {
   try {
-    const data = await fetchNiftyTradingSymbols();
+    await setTradingSymbolForUser('Nifty 50')
     await setTradingSymbolForUser("user10");
     await setTradingSymbolForUser("user9015");
+    const data = await fetchNiftyTradingSymbols();
     if (data) {
       const getInstrumentKeys = async () => {
         try {
