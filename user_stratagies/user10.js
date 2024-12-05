@@ -23,11 +23,13 @@ let buyAmount = 0;
 let cachedUser = null;
 let isTradHandler = false;
 let doTrade = true;
+let todayTotalSells = 0
 
 const MAX_VALUES_LENGTH = 900;
 const INCREASE_PERCENTAGE = 1.4;
 const STOP_LOSE =  0.95;
 const TARGET =  1.1; 
+
 
 
 
@@ -84,17 +86,17 @@ const tradeHandler = async (ltp, userName, optionType) => {
   // Should log 'function'
 
   let user = await fetchUser(userName);
-  if (!user.doTrade) {
-    return;
-  }
-  if (user.todayNegativeTrades > 1) {
-    user.doTrade = false;
-    console.log("user lost 2 trades this today, we are closing", user.name)
-  }
-  if (user.todayPositiveTrades > 1) {
-    user.doTrade = false;
-    console.log("user won 2 trades this today, we are closing", user.name)
-  }
+  // if (!user.doTrade) {
+  //   return;
+  // }
+  // if (user.todayNegativeTrades > 1) {
+  //   user.doTrade = false;
+  //   console.log("user lost 2 trades this today, we are closing", user.name)
+  // }
+  // if (user.todayPositiveTrades > 1) {
+  //   user.doTrade = false;
+  //   console.log("user won 2 trades this today, we are closing", user.name)
+  // }
 
   if(!isTradHandler){
     isTradHandler = true
@@ -139,7 +141,6 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
   //SELL
   if (state.position > 0 && (currentPrice <= state.stopLoss || currentPrice >= state.profitTarget)) {
-
     const exitPrice = currentPrice;
     const principal = state.buyPrice * state.position * lotSize;
     const profit = (exitPrice - state.buyPrice) * state.position * lotSize;
@@ -158,9 +159,11 @@ const tradeHandler = async (ltp, userName, optionType) => {
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement );
     
-    state.previousPrices.length = 0;  
+    ceState.previousPrices =[];
+    peState.previousPrices = [];
     state.position = 0;
     isTradHandler = false;
+    cachedUser = null;
     await setTradingSymbolForUser("user10");
     const { getLTPs } = await import('../services/upstoxService.js'); 
     await getLTPs();
@@ -184,6 +187,8 @@ const user10PE = async (ltp, userName) => {
 const clearValues10 = ()=>{
   ceState.previousPrices =[];
   peState.previousPrices = [];
+  ceState.position = 0;
+  peState.position = 0;
   isTradHandler = false;
   cachedUser = null;
 }

@@ -78,17 +78,17 @@ const updateUser = async (attempts = 3) => {
 
 const tradeHandler = async (ltp, userName, optionType) => {
   let user = await fetchUser(userName);
-  if (!user.doTrade) {
-    return;
-  }
-  if (user.todayNegativeTrades > 1) {
-    user.doTrade = false
-    console.log("user lost 2 trades this today, we are closing ",optionType+ " ", user.name);
-  }
-  if (user.todayPositiveTrades > 2) {
-    user.doTrade = false;
-    console.log("user won 3 trades this today, we are closing ",optionType+ " ", user.name);
-  }
+  // if (!user.doTrade) {
+  //   return;
+  // }
+  // if (user.todayNegativeTrades > 1) {
+  //   user.doTrade = false
+  //   console.log("user lost 2 trades this today, we are closing ",optionType+ " ", user.name);
+  // }
+  // if (user.todayPositiveTrades > 2) {
+  //   user.doTrade = false;
+  //   console.log("user won 3 trades this today, we are closing ",optionType+ " ", user.name);
+  // }
   if (!isTradHandler) {
     isTradHandler = true;
   }
@@ -172,7 +172,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
     )}`;
     user.trades.push(tradeStatement);
 
-    state.previousPrices.length = 0;
+    ceState.previousPrices =[];
+    peState.previousPrices = [];
     state.position = 0;
     isTradHandler = false;
     await setTradingSymbolForUser("user9015");
@@ -181,6 +182,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
   }
 
   await updateUser();
+  cachedUser = null;
 };
 
 const user9015CE = async (ltp, userName) => {
@@ -194,6 +196,8 @@ const user9015PE = async (ltp, userName) => {
 const clearValues9015 = () => {
   ceState.previousPrices = [];
   peState.previousPrices = [];
+  ceState.position = 0;
+  peState.position = 0;
   isTradHandler = false;
   cachedUser = null;
 };

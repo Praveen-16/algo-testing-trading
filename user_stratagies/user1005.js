@@ -76,17 +76,17 @@ const updateUser = async (attempts = 3) => {
 const tradeHandler = async (ltp, userName, optionType) => {
   let user = await fetchUser(userName);
   if (!user) return;
-  if (!user.doTrade) {
-    return;
-  }
-  if (user.todayNegativeTrades > 1) {
-    user.doTrade = false
-    console.log("user lost 2 trades this today, we are closing", user.name);
-  }
-  if (user.todayPositiveTrades > 1) {
-    user.doTrade = false;
-    console.log("user won 2 trades this today, we are closing", user.name);
-  }
+  // if (!user.doTrade) {
+  //   return;
+  // }
+  // if (user.todayNegativeTrades > 1) {
+  //   user.doTrade = false
+  //   console.log("user lost 2 trades this today, we are closing", user.name);
+  // }
+  // if (user.todayPositiveTrades > 1) {
+  //   user.doTrade = false;
+  //   console.log("user won 2 trades this today, we are closing", user.name);
+  // }
   
   if (!isTradHandler) {
     isTradHandler = true;
@@ -169,7 +169,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
       new Date()
     )}`;
     user.trades.push(tradeStatement);
-
+    cachedUser = null;
     state.previousPrices.length = 0;
     state.position = 0;
     isTradHandler = false;
@@ -189,6 +189,8 @@ const user1005PE = async (ltp, userName) => {
 const clearValues1005 = () => {
   ceState.previousPrices = [];
   peState.previousPrices = [];
+  ceState.position = 0;
+  peState.position = 0;
   isTradHandler = false;
   cachedUser = null;
 };

@@ -182,6 +182,8 @@ const day1009PE = async (ltp, userName) => {
 const clearValuesday1009 = ()=>{
   ceState.previousPrices =[];
   peState.previousPrices = [];
+  ceState.position = 0;
+  peState.position = 0;
   isTradHandler = false;
   cachedUser = null;
 }
