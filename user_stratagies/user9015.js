@@ -176,9 +176,9 @@ const tradeHandler = async (ltp, userName, optionType) => {
     peState.previousPrices = [];
     state.position = 0;
     isTradHandler = false;
-    await setTradingSymbolForUser("user9015");
-    const { getLTPs } = await import('../services/upstoxService.js');
-    await getLTPs()
+    // await setTradingSymbolForUser("user9015");
+    // const { getLTPs } = await import('../services/upstoxService.js');
+    // await getLTPs()
   }
 
   await updateUser();

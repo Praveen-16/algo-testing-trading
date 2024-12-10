@@ -143,7 +143,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
       isPriceIncreased &&
       user.doTrade &&
       user.availableBalance >= currentPrice * lotSize &&
-      state.position === 0 &&
+      ceState.position === 0 &&
+      peState.position === 0 &&
       currentPrice > 10
     ) {
       const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));

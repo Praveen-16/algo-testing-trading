@@ -87,7 +87,6 @@ const getLTPs = async () => {
           var decodedObject = decodeProfobuf(data);
           var jsonString = JSON.stringify(decodedObject);
           var jsObject = JSON.parse(jsonString);
-
           var ffObject1 = jsObject?.feeds?.[instrumentKeys[0]]?.ff;
           var ffObject2 = jsObject?.feeds?.[instrumentKeys[1]]?.ff;
           var ffObject3 = jsObject?.feeds?.[instrumentKeys[2]]?.ff;
@@ -103,7 +102,7 @@ const getLTPs = async () => {
             user1005CE?.(ltpCE1, "user1005");
           
             day1009CE?.(ltpCE1, "day1009") 
-           
+          //  console.log(ltpCE1)
           }
 
           if (ffObject2?.marketFF?.ltpc?.ltp != null) {
@@ -114,28 +113,31 @@ const getLTPs = async () => {
             user1005PE?.(ltpPE1, "user1005");
            
             day1009PE?.(ltpPE1, "day1009") 
-        
+            // console.log(ltpPE1)
           }
 
           if (ffObject3?.marketFF?.ltpc?.ltp != null) {
             let ltpCE1 = ffObject3.marketFF.ltpc.ltp;
             user10CE?.(ltpCE1, "user10");
+            // console.log(ltpCE1)
           }
 
           if (ffObject4?.marketFF?.ltpc?.ltp != null) {
             let ltpPE1 = ffObject4.marketFF.ltpc.ltp;
             user10PE?.(ltpPE1, "user10");
+            // console.log(ltpPE1)
           }
 
           if (ffObject5?.marketFF?.ltpc?.ltp != null) {
             let ltpCE1 = ffObject5.marketFF.ltpc.ltp;
             user9015CE?.(ltpCE1, "user9015");
+            // console.log(ltpCE1)
           }
 
           if (ffObject6?.marketFF?.ltpc?.ltp != null) {
             let ltpPE1 = ffObject6.marketFF.ltpc.ltp;
             user9015PE?.(ltpPE1, "user9015");
-            
+            // console.log(ltpPE1)
           }
 
 

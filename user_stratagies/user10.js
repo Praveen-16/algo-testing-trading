@@ -21,7 +21,7 @@ let peState = {
 let lotSize = 25;
 let buyAmount = 0;
 let cachedUser = null;
-let isTradHandler = false;
+// let isTradHandler = false;
 let doTrade = true;
 let todayTotalSells = 0
 
@@ -98,9 +98,6 @@ const tradeHandler = async (ltp, userName, optionType) => {
   //   console.log("user won 2 trades this today, we are closing", user.name)
   // }
 
-  if(!isTradHandler){
-    isTradHandler = true
-  }
   if (!user) return;
 
 
@@ -123,7 +120,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
   const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * INCREASE_PERCENTAGE);
 
   // BUY
-  if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && state.position == 0 && currentPrice > 10) {
+  if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && ceState.position === 0 && peState.position === 0  && currentPrice > 10) {
     const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
     state.position += maxLots;
     buyAmount = (maxLots * currentPrice * lotSize);
@@ -162,11 +159,10 @@ const tradeHandler = async (ltp, userName, optionType) => {
     ceState.previousPrices =[];
     peState.previousPrices = [];
     state.position = 0;
-    isTradHandler = false;
     cachedUser = null;
-    await setTradingSymbolForUser("user10");
-    const { getLTPs } = await import('../services/upstoxService.js'); 
-    await getLTPs();
+    // await setTradingSymbolForUser("user10");
+    // const { getLTPs } = await import('../services/upstoxService.js'); 
+    // await getLTPs();
   }
  
   await updateUser();
