@@ -2,7 +2,7 @@ const User = require('../models/User');
 const setTradingSymbolForUser = require('../services/setTradingSymbolForUser');
 
 
-let ceState = {
+global.user10CE_State = {
   previousPrices: [],
   position: 0,
   buyPrice: 0,
@@ -10,7 +10,7 @@ let ceState = {
   profitTarget: 0
 };
 
-let peState = {
+global.user10PE_State = {
   previousPrices: [],
   position: 0,
   buyPrice: 0,
@@ -21,7 +21,7 @@ let peState = {
 let lotSize = 25;
 let buyAmount = 0;
 let cachedUser = null;
-// let isTradHandler = false;
+let isTradHandler = false;
 let doTrade = true;
 let todayTotalSells = 0
 
@@ -101,7 +101,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
   if (!user) return;
 
 
-  let state = optionType === 'CE' ? ceState : peState;
+  let state = optionType === 'CE' ? global.user10CE_State : global.user10PE_State;
   let valueArray = optionType === 'CE' ? user.ceValues : user.peValues;
 
   state.previousPrices.push(ltp);
@@ -120,7 +120,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
   const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * INCREASE_PERCENTAGE);
 
   // BUY
-  if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && ceState.position === 0 && peState.position === 0  && currentPrice > 10) {
+  if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && global.user10CE_State.position === 0 && global.user10PE_State.position === 0  && currentPrice > 10) {
     const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
     state.position += maxLots;
     buyAmount = (maxLots * currentPrice * lotSize);
@@ -156,8 +156,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
     user.trades.push(tradeStatement );
     
-    ceState.previousPrices =[];
-    peState.previousPrices = [];
+    global.user10CE_State.previousPrices =[];
+    global.user10PE_State.previousPrices = [];
     state.position = 0;
     cachedUser = null;
     // await setTradingSymbolForUser("user10");
@@ -181,10 +181,10 @@ const user10PE = async (ltp, userName) => {
 };
 
 const clearValues10 = ()=>{
-  ceState.previousPrices =[];
-  peState.previousPrices = [];
-  ceState.position = 0;
-  peState.position = 0;
+  global.user10CE_State.previousPrices =[];
+  global.user10PE_State.previousPrices = [];
+  global.user10CE_State.position = 0;
+  global.user10PE_State.position = 0;
   isTradHandler = false;
   cachedUser = null;
 }
