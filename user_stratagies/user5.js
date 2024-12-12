@@ -186,6 +186,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
       state.position = 0;
     }
 
+    await updateUser();
   
     if (user.todayNegativeTrades > 2) {
       user.doTrade = false;
@@ -195,7 +196,6 @@ const tradeHandler = async (ltp, userName, optionType) => {
       console.log(`User ${userName} won 3 trades today. Stopping trading.`);
     }
 
-    await updateUser();
   } catch (error) {
     console.error(`Error in tradeHandler for ${optionType}:`, error);
   } finally {
