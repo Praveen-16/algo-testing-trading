@@ -17,6 +17,7 @@ const { banknifty1Clear } = require("../user_stratagies/BankNifty/bankNifty1");
 const { clearValuesday1009 } = require("../user_stratagies/day1009");
 const setTradingSymbolForUser = require('../services/setTradingSymbolForUser');
 const { clearValues1005 } = require("../user_stratagies/user1005");
+const stateRegistry = require('../services/stateRegistry');
 
 let instrumentKeyPE = "";
 let instrumentKeyCE = "";
@@ -335,6 +336,20 @@ const addUnsetteldFunds = async (req, res) => {
   }
 };
 
+const getUserStateDetails = async (req, res) => {
+  const { username } = req.body; 
+  try {
+    const userStates = stateRegistry[username];
+    if (!userStates) {
+      return res.status(404).json({ error: 'User not found or no state available '+ username });
+    }
+  
+    res.json(userStates);
+  } catch (error) {
+      res.status(500).json({ message: 'Error gettings user state '+username });
+  }
+};
+
 // const addUnsetteldFunds = async (req, res) => {
 
 //   try {
@@ -369,7 +384,8 @@ module.exports = {
   getNifty50Value,
   getBankNiftyValue,
   resetUserDetails,
-  addUnsetteldFunds
+  addUnsetteldFunds,
+  getUserStateDetails
   // upTimeServer,
 
 };

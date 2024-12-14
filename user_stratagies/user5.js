@@ -1,5 +1,5 @@
 const User = require('../models/User');
-let ceState = {
+let user5CeState = {
   previousPrices: [],
   position: 0,
   buyPrice: 0,
@@ -7,7 +7,7 @@ let ceState = {
   profitTarget: 0
 };
 
-let peState = {
+let user5PeState = {
   previousPrices: [],
   position: 0,
   buyPrice: 0,
@@ -15,7 +15,7 @@ let peState = {
   profitTarget: 0
 };
 
-let lotSize = 25;
+let lotSize = 75;
 let buyAmount = 0;
 let cachedUser = null;
 let isSaving = false;
@@ -116,7 +116,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
     let user = await fetchUser(userName);
     if (!user) return;
 
-    let state = optionType === 'CE' ? ceState : peState;
+    let state = optionType === 'CE' ? user5CeState : user5PeState;
     let valueArray = optionType === 'CE' ? user.ceValues : user.peValues;
 
     if (!user.doTrade && state.position === 0) {
@@ -143,8 +143,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
       isPriceIncreased &&
       user.doTrade &&
       user.availableBalance >= currentPrice * lotSize &&
-      ceState.position === 0 &&
-      peState.position === 0 &&
+      user5CeState.position === 0 &&
+      user5PeState.position === 0 &&
       currentPrice > 10
     ) {
       const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
@@ -213,12 +213,12 @@ const user5PE = async (ltp, userName) => {
 };
 
 const clearValues5 = () => {
-  ceState.previousPrices = [];
-  peState.previousPrices = [];
-  ceState.position = 0;
-  peState.position = 0;
+  user5CeState.previousPrices = [];
+  user5PeState.previousPrices = [];
+  user5CeState.position = 0;
+  user5PeState.position = 0;
   isTradeHandlerActive = false;
   cachedUser=null
 };
 
-module.exports = { user5CE, user5PE, createSampleUser, clearValues5 };
+module.exports = { user5CE, user5PE, createSampleUser, clearValues5,user5PeState, user5CeState  };

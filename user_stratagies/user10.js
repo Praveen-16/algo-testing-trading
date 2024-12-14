@@ -1,8 +1,7 @@
 const User = require('../models/User');
 const setTradingSymbolForUser = require('../services/setTradingSymbolForUser');
 
-
-global.user10CE_State = {
+let user10CeState = {
   previousPrices: [],
   position: 0,
   buyPrice: 0,
@@ -10,7 +9,7 @@ global.user10CE_State = {
   profitTarget: 0
 };
 
-global.user10PE_State = {
+let user10PeState = {
   previousPrices: [],
   position: 0,
   buyPrice: 0,
@@ -18,20 +17,17 @@ global.user10PE_State = {
   profitTarget: 0
 };
 
-let lotSize = 25;
+let lotSize = 75;
 let buyAmount = 0;
 let cachedUser = null;
 let isTradHandler = false;
 let doTrade = true;
-let todayTotalSells = 0
+let todayTotalSells = 0;
 
 const MAX_VALUES_LENGTH = 900;
 const INCREASE_PERCENTAGE = 1.4;
-const STOP_LOSE =  0.95;
-const TARGET =  1.1; 
-
-
-
+const STOP_LOSE = 0.95;
+const TARGET = 1.1;
 
 const formatDateTime = (date) => {
   const options = {
@@ -80,47 +76,30 @@ const updateUser = async (attempts = 3) => {
   }
 };
 
-
-
 const tradeHandler = async (ltp, userName, optionType) => {
-  // Should log 'function'
-
   let user = await fetchUser(userName);
-  // if (!user.doTrade) {
-  //   return;
-  // }
-  // if (user.todayNegativeTrades > 1) {
-  //   user.doTrade = false;
-  //   console.log("user lost 2 trades this today, we are closing", user.name)
-  // }
-  // if (user.todayPositiveTrades > 1) {
-  //   user.doTrade = false;
-  //   console.log("user won 2 trades this today, we are closing", user.name)
-  // }
 
   if (!user) return;
 
-
-  let state = optionType === 'CE' ? global.user10CE_State : global.user10PE_State;
+  let state = optionType === 'CE' ? user10CeState : user10PeState;
   let valueArray = optionType === 'CE' ? user.ceValues : user.peValues;
 
   state.previousPrices.push(ltp);
   valueArray.push({
     value: ltp,
-    time: new Date()  
-  });  
+    time: new Date()
+  });
   if (state.previousPrices.length === MAX_VALUES_LENGTH) state.previousPrices.shift();
 
   if (valueArray.length > 5) {
-    valueArray.shift();  
+    valueArray.shift();
   }
-
 
   const currentPrice = ltp;
   const isPriceIncreased = state.previousPrices.some(price => currentPrice >= price * INCREASE_PERCENTAGE);
 
   // BUY
-  if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && global.user10CE_State.position === 0 && global.user10PE_State.position === 0  && currentPrice > 10) {
+  if (isPriceIncreased && user.availableBalance >= currentPrice * lotSize && user10CeState.position === 0 && user10PeState.position === 0 && currentPrice > 10) {
     const maxLots = Math.floor(user.availableBalance / (currentPrice * lotSize));
     state.position += maxLots;
     buyAmount = (maxLots * currentPrice * lotSize);
@@ -132,61 +111,53 @@ const tradeHandler = async (ltp, userName, optionType) => {
     user.todayTradesCount++;
 
     const tradeStatement = `Bought ${optionType} at ${state.buyPrice.toFixed(2)}, Units: ${state.position.toFixed(2)}, Amount: ${buyAmount.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
-    user.trades.push(tradeStatement );
-
+    user.trades.push(tradeStatement);
   }
 
-  //SELL
+  // SELL
   if (state.position > 0 && (currentPrice <= state.stopLoss || currentPrice >= state.profitTarget)) {
     const exitPrice = currentPrice;
     const principal = state.buyPrice * state.position * lotSize;
     const profit = (exitPrice - state.buyPrice) * state.position * lotSize;
     if (profit > 0) {
-      user.availableBalance += principal - 50; 
-      user.unsettledFunds += profit;  
+      user.availableBalance += principal - 50;
+      user.unsettledFunds += profit;
       user.totalPositiveTrades += 1;
-      user.todayPositiveTrades +=1
+      user.todayPositiveTrades += 1;
     } else {
       user.availableBalance += (exitPrice * state.position * lotSize) - 50;
       user.totalNegativeTrades += 1;
-      user.todayNegativeTrades +=1;
+      user.todayNegativeTrades += 1;
     }
 
-    user.netProfitOrLoss +=(profit);
+    user.netProfitOrLoss += (profit);
     const tradeStatement = `Sold ${optionType} at ${exitPrice.toFixed(2)}, Profit/Loss: ${profit.toFixed(2)}, Balance: ${user.availableBalance.toFixed(2)}, ${formatDateTime(new Date())}`;
-    user.trades.push(tradeStatement );
-    
-    global.user10CE_State.previousPrices =[];
-    global.user10PE_State.previousPrices = [];
+    user.trades.push(tradeStatement);
+
+    user10CeState.previousPrices = [];
+    user10PeState.previousPrices = [];
     state.position = 0;
     cachedUser = null;
-    // await setTradingSymbolForUser("user10");
-    // const { getLTPs } = await import('../services/upstoxService.js'); 
-    // await getLTPs();
   }
- 
+
   await updateUser();
 };
 
-
 const user10CE = async (ltp, userName) => {
-
   await tradeHandler(ltp, userName, 'CE');
 };
 
-
 const user10PE = async (ltp, userName) => {
-
   await tradeHandler(ltp, userName, 'PE');
 };
 
-const clearValues10 = ()=>{
-  global.user10CE_State.previousPrices =[];
-  global.user10PE_State.previousPrices = [];
-  global.user10CE_State.position = 0;
-  global.user10PE_State.position = 0;
+const clearValues10 = () => {
+  user10CeState.previousPrices = [];
+  user10PeState.previousPrices = [];
+  user10CeState.position = 0;
+  user10PeState.position = 0;
   isTradHandler = false;
   cachedUser = null;
-}
+};
 
-module.exports = { user10CE, user10PE, clearValues10 };
+module.exports = { user10CE, user10PE, clearValues10, user10PeState, user10CeState };

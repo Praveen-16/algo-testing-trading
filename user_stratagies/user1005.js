@@ -16,7 +16,7 @@ let peState = {
   profitTarget: 0,
 };
 
-let lotSize = 25;
+let lotSize = 75;
 let buyAmount = 0;
 let cachedUser = null;
 let isTradHandler = false;

@@ -2,7 +2,7 @@ const User = require("../models/User");
 const setTradingSymbolForUser = require("../services/setTradingSymbolForUser");
 
 
-let ceState = {
+let user9015CeState = {
   previousPrices: [],
   position: 0,
   buyPrice: 0,
@@ -10,7 +10,7 @@ let ceState = {
   profitTarget: 0,
 };
 
-let peState = {
+let user9015PeState = {
   previousPrices: [],
   position: 0,
   buyPrice: 0,
@@ -18,7 +18,7 @@ let peState = {
   profitTarget: 0,
 };
 
-let lotSize = 25;
+let lotSize = 75;
 let buyAmount = 0;
 let cachedUser = null;
 let isTradHandler = false;
@@ -94,7 +94,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
   }
   if (!user) return;
 
-  let state = optionType === "CE" ? ceState : peState;
+  let state = optionType === "CE" ? user9015CeState : user9015PeState;
   let valueArray = optionType === "CE" ? user.ceValues : user.peValues;
 
   state.previousPrices.push(ltp);
@@ -172,8 +172,8 @@ const tradeHandler = async (ltp, userName, optionType) => {
     )}`;
     user.trades.push(tradeStatement);
 
-    ceState.previousPrices =[];
-    peState.previousPrices = [];
+    user9015CeState.previousPrices =[];
+    user9015PeState.previousPrices = [];
     state.position = 0;
     isTradHandler = false;
     // await setTradingSymbolForUser("user9015");
@@ -194,12 +194,12 @@ const user9015PE = async (ltp, userName) => {
 };
 
 const clearValues9015 = () => {
-  ceState.previousPrices = [];
-  peState.previousPrices = [];
-  ceState.position = 0;
-  peState.position = 0;
+  user9015CeState.previousPrices = [];
+  user9015PeState.previousPrices = [];
+  user9015CeState.position = 0;
+  user9015PeState.position = 0;
   isTradHandler = false;
   cachedUser = null;
 };
 
-module.exports = { user9015CE, user9015PE, clearValues9015 };
+module.exports = { user9015CE, user9015PE, clearValues9015, user9015CeState, user9015PeState };
