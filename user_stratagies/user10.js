@@ -116,6 +116,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
 
   // SELL
   if (state.position > 0 && (currentPrice <= state.stopLoss || currentPrice >= state.profitTarget)) {
+console.log(state.position, 'chck')
     const exitPrice = currentPrice;
     const principal = state.buyPrice * state.position * lotSize;
     const profit = (exitPrice - state.buyPrice) * state.position * lotSize;
@@ -137,7 +138,7 @@ const tradeHandler = async (ltp, userName, optionType) => {
     user10CeState.previousPrices = [];
     user10PeState.previousPrices = [];
     state.position = 0;
-    cachedUser = null;
+    // cachedUser = null;
   }
 
   await updateUser();
