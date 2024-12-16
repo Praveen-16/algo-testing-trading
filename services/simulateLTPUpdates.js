@@ -47,8 +47,8 @@ const updateUserDetails = async (name) => {
       { name: name },
       {
         $set: {
-          capital: 20000,
-          availableBalance: 20000
+          capital: 40000,
+          availableBalance: 40000
         },
         $unset: {
           netProfitOrLoss: "",

@@ -182,7 +182,6 @@ const tradeHandler = async (ltp, userName, optionType) => {
   }
 
   await updateUser();
-  cachedUser = null;
 };
 
 const user9015CE = async (ltp, userName) => {

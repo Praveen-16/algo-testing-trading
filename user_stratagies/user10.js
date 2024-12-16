@@ -138,7 +138,6 @@ console.log(state.position, 'chck')
     user10CeState.previousPrices = [];
     user10PeState.previousPrices = [];
     state.position = 0;
-    // cachedUser = null;
   }
 
   await updateUser();

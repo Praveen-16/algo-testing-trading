@@ -155,7 +155,6 @@ const tradeHandler = async (ltp, userName, optionType) => {
     state.previousPrices.length = 0;  
     state.position = 0;
     isTradHandler = false;
-    cachedUser = null;
   }
 
   await updateUser();
